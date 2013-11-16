@@ -22,6 +22,7 @@
 
 /* Various definitions and constants */
 
+#define WITH_MPI 1
 #define MAX_LINE 512            /* Maximum number of characters in each input file
                                    line */
 #define CHI_DEFAULT 1
@@ -34,6 +35,14 @@
 #define TIME_STEPS_DEFAULT 32
 #define TRACE_ROUTES_DEFAULT 0
 #define N_OUTPUT_ROUTES 16
+
+#ifdef WITH_MPI
+#ifdef HAVE_OPENMP
+#define MPI_GRAIN_DEFAULT OMP_NUM_THREADS
+#else
+#define MPI_GRAIN_DEFAULT 10
+#endif
+#endif
 
 #ifndef M_PI
 #define M_PI  3.14159265358979323846264338327950288
@@ -51,6 +60,9 @@
 #define GAS_DUST_NUMBER_RATIO 7.57e+11
 #define GRAIN_SITES_PER_CM2 3.00e+15    /* cm-2 */
 #define AVERAGE_UV_IRSF 1e8     /* photons cm-2 */
+
+#define MPI_MASTER_RANK 0
+#define MPI_FIRST_WORKER 1
 
 /* Data structures */
 
@@ -109,6 +121,9 @@ typedef struct
   solver_t solver;
   abundances_t abundances;
   output_t output;
+#ifdef WITH_MPI
+  int mpi_grain;
+#endif
 } inp_t;
 
 typedef struct
@@ -133,6 +148,11 @@ typedef struct
   SOURCE_MODE mode;
 } mdl_t;
 
+typedef struct
+{
+  cell_t *cells;
+  int *cell_idxs;
+} cell_block_t;
 
 typedef struct
 {

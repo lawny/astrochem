@@ -107,6 +107,7 @@ read_input (const char *input_file, inp_t * input_params,
   input_params->solver.rel_err = REL_ERR_DEFAULT;
   input_params->output.time_steps = TIME_STEPS_DEFAULT;
   input_params->output.trace_routes = TRACE_ROUTES_DEFAULT;
+  input_params->mpi_grain = MPI_GRAIN_DEFAULT;
 
   /* Loop over the lines, and look for keywords (between brackets) and
      parameters/values (separated by "="). */
@@ -274,6 +275,16 @@ read_input (const char *input_file, inp_t * input_params,
                 strncpy (input_params->output.suffix, value, MAX_LINE);
               else
                 input_error (input_file, line_number);
+            }
+          else if (strcmp (keyword, "mpi") == 0)
+            {
+              if (strcmp (parameter, "mpi_grain") == 0)
+              {
+                input_params->mpi_grain = atoi(value);
+              }
+              else
+                input_error (input_file, line_number);
+
             }
 
           /* Unknown or unspecified keyword */

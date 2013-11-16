@@ -52,6 +52,15 @@ benchmark-bin: benchmark.py
 	sed -e 's,\@PYTHON\@,${PYTHON},g' $? > benchmark
 	chmod a+x benchmark
 
+
+benchmark_mpi: benchmark_mpi-bin
+	./benchmark_mpi
+
+benchmark_mpi-bin: benchmark_mpi.py
+	sed -e 's,\@PYTHON\@,${PYTHON},g' $? > benchmark_mpi
+	chmod a+x benchmark_mpi
+
 CLEANFILES = input.ini source.mdl source_dyn.mdl network.chm *.abun
 
-EXTRA_DIST = benchmark.py
+EXTRA_DIST = benchmark_mpi.py benchmark.py
+
