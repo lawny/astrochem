@@ -44,7 +44,7 @@ rate (double alpha, double beta, double gamm, int reaction_type,
   switch (reaction_type)
     {
     case -1:
-      /* Gas-grain interaction (excluding depletion and desorption), 
+      /* Gas-grain interaction (excluding depletion and desorption),
          Electron-grain recombination. */
       k = alpha * pow (tgas / 300, beta) * GAS_DUST_NUMBER_RATIO;
       break;
@@ -55,7 +55,7 @@ rate (double alpha, double beta, double gamm, int reaction_type,
       break;
 
     case 1:
-      /* Cosmic-ray ionization (direct process). Cosmic-ray induced 
+      /* Cosmic-ray ionization (direct process). Cosmic-ray induced
          photoreactions (indirect process)   */
       k = alpha * cosmic;
       break;
