@@ -26,7 +26,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "astrochem.h"
+#include "libastrochem.h"
 
 int add_species (char *new_species, net_t * network);
 

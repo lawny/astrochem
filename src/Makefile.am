@@ -21,9 +21,13 @@ AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
 
 AM_CFLAGS += ${OPENMP_CFLAGS}
 
-bin_PROGRAMS = astrochem chmconvert
 
-astrochem_SOURCES = astrochem.c astrochem.h input.c network.c rates.c solve.c output.c
+noinst_LIBRARIES = libastrochem.a
+libastrochem_a_SOURCES = libastrochem.c input.c network.c rates.c solve.c output.c
+
+bin_PROGRAMS = astrochem chmconvert
+astrochem_SOURCES = astrochem.c 
+astrochem_LDADD = libastrochem.a
 
 chmconvert_SOURCES = chmconvert.py
 

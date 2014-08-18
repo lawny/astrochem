@@ -22,6 +22,9 @@
 
 /* Various definitions and constants */
 
+#ifndef _LIBASTROCHEM_H_
+#define _LIBASTROCHEM_H_
+
 #define MAX_LINE 512            /* Maximum number of characters in each input file
                                    line */
 #define CHI_DEFAULT 1
@@ -237,3 +240,6 @@ int get_route_idx (const res_t * results, int cell_idx, int ts_idx,
 void output (int n_cells, const inp_t * input_params,
              const mdl_t * source_mdl, const net_t * network,
              const res_t * results, int verbose);
+
+
+#endif // _LIBASTROCHEM_H_

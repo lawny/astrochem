@@ -30,7 +30,7 @@
 #include <omp.h>
 #endif
 
-#include "astrochem.h"
+#include "libastrochem.h"
 
 
 void usage (void);

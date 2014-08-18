@@ -28,7 +28,7 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
-#include "astrochem.h"
+#include "libastrochem.h"
 
 typedef enum
 { R_STATIC = 0, R_DYNAMIC = 1, R_TIMES = 2 } SOURCE_READ_MODE;

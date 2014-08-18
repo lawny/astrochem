@@ -37,7 +37,7 @@
 #endif
 #include <nvector/nvector_serial.h>
 
-#include "astrochem.h"
+#include "libastrochem.h"
 
 typedef struct
 {
