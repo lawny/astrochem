@@ -1,4 +1,4 @@
-/* 
+/*
    network.test.c - Test the read_network.) function
 
    Copyright (c) 2006-2013 Sebastien Maret
@@ -53,7 +53,6 @@ main (void)
     fprintf (f, "C(+)         + C(-)                        -> C            + C                                             2.30e-07 -5.00e-01  0.00e+00 11 4243\n");
     fprintf (f, "C            + e(-)                        -> C(-)                                                         3.00e-15  0.00e+00  0.00e+00 12 4279\n");
     fprintf (f, "C            + uv-photon                   -> C(+)         + e(-)                                          2.16e-10  0.00e+00  2.61e+00 13 4283\n");
-     
     fclose (f);
 
     /* Read it */
@@ -92,4 +91,3 @@ main (void)
     }
     return EXIT_SUCCESS;
 }
-

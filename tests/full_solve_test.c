@@ -138,4 +138,3 @@ main (void)
   free_results (&results);
   return EXIT_SUCCESS;
 }
-
