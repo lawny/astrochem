@@ -47,10 +47,14 @@ static int jacobian (int N, realtype t, N_Vector y, N_Vector fy,
                      DlsMat J, void *params, N_Vector tmp1,
                      N_Vector tmp2, N_Vector tmp3);
 
-/*
-   Vector defining the ODE system.
-   */
-
+/**
+  * @brief fonction used in the ODE system.
+  * @param t time
+  * @param y output
+  * @param ydot ydot
+  * @param params user params
+  * @return computed value
+  */
 static int
 f (realtype t __attribute__ ((unused)), N_Vector y, N_Vector ydot,
    void *params)
@@ -153,10 +157,18 @@ f (realtype t __attribute__ ((unused)), N_Vector y, N_Vector ydot,
   return (0);
 }
 
-/*
-   Jacobian matrix.
-   */
-
+/**
+ * @brief compute jacobian matrix
+ * @param N unused attribute
+ * @param y output
+ * @param fy unsed attribute
+ * @param[out] jacobian output matrix
+ * @param params user params
+ * @param tmp1 unsed attribute
+ * @param tmp2 unsed attribute
+ * @param tmp3 unsed attribute
+ * @return 0
+ */
 static int
 jacobian (int N __attribute__ ((unused)),
           realtype t __attribute__ ((unused)), N_Vector y,
@@ -364,10 +376,20 @@ jacobian (int N __attribute__ ((unused)),
   return (0);
 }
 
-/*
-   Solve the ODE system.
-   */
-
+/**
+ * @brief Solve the ODE system.
+ * Solve the ODE system with fully provided parameters. It initialize and close the solver itself
+ * @param cell_index index of cell to compute on
+ * @param input_params input params
+ * @param mode source mode
+ * @param cell cell to compute on
+ * @param network network to use for solving
+ * @param ts time steps to solve on
+ * @param[out] results output results
+ * @param verbose quit if 0, verbose if 1
+ * @return 0 if sucessfull
+ * @todo Remove complicated code ? TODO
+ */
 int
 full_solve (int cell_index, const inp_t * input_params, SOURCE_MODE mode,
             const cell_t * cell, const net_t * network, const time_steps_t * ts,
@@ -648,7 +670,18 @@ full_solve (int cell_index, const inp_t * input_params, SOURCE_MODE mode,
 }
 
 /**
- * Initialize the solver
+ * @brief Initialize the solver
+ * Initialize the solver before calling solve method. Do not forget to clse the solver after using solver_close
+ *
+ * @param cell cell to compute on
+ * @param network network to compute on
+ * @param phys physocs parameters
+ * @param abundances initial abundances
+ * @param density system density
+ * @param abs_err absolute error
+ * @param rel_err relative error
+ * @param[out] astrochem_mem dedicated memory
+ * return 0 if successfull
  */
 int solver_init( const cell_t* cell, const net_t* network, const phys_t* phys,
                  const double* abundances , double density, double abs_err, double rel_err,
@@ -744,7 +777,13 @@ int solver_init( const cell_t* cell, const net_t* network, const phys_t* phys,
 }
 
 /**
- * Solve the ODE system
+ * @brief Solve the ODE system
+ * @param astrochem_mem dedicated memory
+ * @param network network to solve the system with
+ * @param[out] abundances  output abundances
+ * @param time time to compute on
+ * @param verbose quiet if 0, verbose if 1
+ * @return 0 if successfull
  */
 int solve( const astrochem_mem_t* astrochem_mem, const net_t* network, double* abundances, double time , int verbose )
 {
@@ -771,7 +810,10 @@ int solve( const astrochem_mem_t* astrochem_mem, const net_t* network, double* a
 }
 
 /**
- * Close the solver
+ * @brief Close the solver
+ * close the solver and desallocate dedicated memory, to be used after solver_init and solve functions
+ *
+ * @param astrochem_mem memory to deallocate
  */
 void solver_close( astrochem_mem_t* astrochem_mem )
 {
@@ -781,7 +823,14 @@ void solver_close( astrochem_mem_t* astrochem_mem )
 }
 
 /**
- *  Allocate the abundance vector
+ * @brief Allocate a abundances array using provided network
+ *
+ * Allocate an abundances array in prodided pointer to @p abundances array, 
+ * of the size of n_species in @p network struct
+ *
+ * @param network network to use n_species from to allocate correct size
+ * @param abundances pointer to array to allocate
+ * @return 0 if successfull
  */
 int alloc_abundances ( const net_t* network, double** abundances )
 {
@@ -801,7 +850,13 @@ int alloc_abundances ( const net_t* network, double** abundances )
 }
 
 /**
- *  Initialise specific abundances
+ * @brief Initialise specific abundances
+ * @param species names of species
+ * @param n_initialized_species number of species to initialize
+ * @param initial_abundances intial abundances values
+ * @param network network to use to find species names
+ * @param[out] abundances abundances array to initalize
+ * @return 0 if successfull
  */
 int set_initial_abundances( const char** species, int n_initialized_species, const double* initial_abundances,
                             const net_t* network, double* abundances )
@@ -821,7 +876,8 @@ int set_initial_abundances( const char** species, int n_initialized_species, con
 }
 
 /**
- * Free the abundances
+ * @brief Free the abundances array
+ * @param abundances abundances array to free
  */
 void free_abundances ( double* abundances )
 {
@@ -832,9 +888,13 @@ void free_abundances ( double* abundances )
 }
 
 
-/*
-   Allocate the results structures
-   */
+/**
+ * @brief Allocate the results structures
+ * @param[out] results results to allocate
+ * @param n_time_steps number of time steps
+ * @param n_cells number of cells
+ * @param n_output_abundances number of output abundances
+ */
 void
 alloc_results (res_t * results, int n_time_steps, int n_cells,
                int n_output_abundances)
@@ -872,10 +932,10 @@ alloc_results (res_t * results, int n_time_steps, int n_cells,
   results->n_output_abundances = n_output_abundances;
 }
 
-/*
-   Free the results structures
-   */
-
+/**
+ * @brief Free the results structures
+ * @param results results to free
+ */
 void
 free_results (res_t * results)
 {
@@ -889,10 +949,14 @@ free_results (res_t * results)
     }
 }
 
-/*
-   Get index in abundances array from all idx
-   */
-
+/**
+ * @brief Get index in abundances array in results abundance array
+ * @param results results to search abundances idx in
+ * @param cell_idx index of cell
+ * @param ts_idx index of time step
+ * @param abund_idx index of abundance in network
+ * @return index of abundance in results
+ */
 int
 get_abundance_idx (const res_t * results, int cell_idx, int ts_idx,
                    int abund_idx)
@@ -901,10 +965,15 @@ get_abundance_idx (const res_t * results, int cell_idx, int ts_idx,
           ts_idx * results->n_output_abundances + abund_idx);
 }
 
-/*
-   Get index in route array from all idx
-   */
-
+/**
+ * @brief Get index in route array in results
+ * @param results results to search route idx in
+ * @param cell_idx index of cell
+ * @param ts_idx index of time step
+ * @param abund_idx index of abundance in network
+ * @param route_idx index of route
+ * @return index of route in results
+ */
 int
 get_route_idx (const res_t * results, int cell_idx, int ts_idx, int abund_idx,
                int route_idx)

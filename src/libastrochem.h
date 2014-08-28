@@ -20,200 +20,339 @@
    along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
    */
 
-/* Various definitions and constants */
+/**
+ * @mainpage Astrochem
+ *
+ * Astrochem is a code to study the chemistry of a variety of astromical objects (dense clouds, prestellar cores, protoplanetary disks, etc.).
+ * It is provided in the form of a library ( libastrochem ) and a standalone program ( astrochem ).
+ *
+ * The program astrochem is made to be used with an input file : 
+ *<a href="http://smaret.github.io/astrochem/">http://smaret.github.io/astrochem/</a> 
+ *
+ * The library libastrochem ( documentation : @link libastrochem.h @endlink ) provide fonctions to easily create a system and solve it.
+ * 
+ */
 
+/**
+ * @file libastrochem.h
+ * @author Sebastion Maret
+ * @date 28 August 2014
+ * @brief libastrochem public api
+ * @note This is the public api of libastrochem, One can use it to create a solvable system, solve it and recover output abundances. <br>
+ * An example can be found here : @link apiuser.c @endlink <br>
+ * How to use it : <br>
+ * @code
+  int verbose = 1;
+  char *chem_file = "../networks/osu2009.chm";
+  net_t network;
+  read_network(chem_file, &network, verbose );
+
+  phys_t phys;
+  phys.cosmic = 1e-17;
+  phys.chi = 0;
+  phys.grain_size = GRAIN_SIZE_DEFAULT;
+  phys.grain_abundance = 0;
+
+  double abs_err, rel_err;
+  abs_err = ABS_ERR_DEFAULT;
+  rel_err = REL_ERR_DEFAULT;
+
+  const char* species[]  = {"CO", "HCO(+)", "e(-)"};
+  const double initial_abundances[] = {1e-4, 1e-9, 1e-9};
+
+  double *abundances;
+  alloc_abundances( &network, &abundances ); // Allocate the abundances array; it contains all species.
+  set_initial_abundances(species, 3, initial_abundances, &network, abundances); // Set initial abundances
+
+  double density = 1000;
+  double av = 20;
+  double temperature = 10;
+
+  cell_t cell;
+  cell.nh = &density;
+  cell.av = &av;
+  cell.tgas = &temperature;
+  cell.tdust = &temperature; // Assume tgas = tdust in this specific case
+
+  astrochem_mem_t astrochem_mem;
+
+  if( solver_init( &cell, &network, &phys, abundances , density, abs_err, rel_err, &astrochem_mem ) != 0 )
+    {
+      return EXIT_FAILURE;
+    }
+  int i;
+  double time = 0;
+  for( i = 0; i< 1000000 ; i++)
+    {
+      time += 1e-6; // advance time
+      solve( &astrochem_mem, &network, abundances, time, verbose);
+
+      // Do something with the results of abundances computations 
+    }
+  solver_close( &astrochem_mem );
+  free_abundances( abundances );
+  free_network (&network);
+ @endcode
+ * @todo move define in specific headers TODO
+ * @todo last for define are not documented TODO
+ */
+
+
+/* Various definitions and constants */
 #ifndef _LIBASTROCHEM_H_
 #define _LIBASTROCHEM_H_
 
 #include <nvector/nvector_serial.h>
 
-#define MAX_LINE 512            /* Maximum number of characters in each input file
-                                   line */
-#define CHI_DEFAULT 1
-#define COSMIC_DEFAULT 1.3e-17
-#define GRAIN_SIZE_DEFAULT 1e-5 /* Grain radius, in cm */
-#define TI_DEFAULT 1e-6
-#define TF_DEFAULT 1e7
-#define ABS_ERR_DEFAULT 1e-20
-#define REL_ERR_DEFAULT 1e-3
-#define TIME_STEPS_DEFAULT 32
-#define TRACE_ROUTES_DEFAULT 0
-#define N_OUTPUT_ROUTES 16
+#define MAX_LINE 512      /*!< Maximum number of characters in each input file line */
+#define CHI_DEFAULT 1     /*!< Default chi value */
+#define COSMIC_DEFAULT 1.3e-17  /*!< Default cosmic value */
+#define GRAIN_SIZE_DEFAULT 1e-5 /*!< Default Grain radius, in cm */
+#define TI_DEFAULT 1e-6  /*!< Default initial time */
+#define TF_DEFAULT 1e7   /*!< Default final time */
+#define ABS_ERR_DEFAULT 1e-20   /*!< Default absolute error */
+#define REL_ERR_DEFAULT 1e-3    /*!< Default relative error */
+#define TIME_STEPS_DEFAULT 32   /*!< Default number of times steps */
+#define TRACE_ROUTES_DEFAULT 0  /*!< Deactivate route tracing by default */
+#define N_OUTPUT_ROUTES 16      /*!< Defaults number of output routes */
 
 #ifndef M_PI
-#define M_PI  3.14159265358979323846264338327950288
+#define M_PI  3.14159265358979323846264338327950288 /*!< Our own value of pi */
 #endif
 
-#define MAX_CHAR_SPECIES 32     /* Maximum number of characters in a specie name */
+#define MAX_CHAR_SPECIES 32     /*!< Maximum number of characters in a specie name */
 
-#define CONST_MKSA_YEAR 3.1536e7
-#define CONST_CGSM_BOLTZMANN (1.3806503e-16)
-#define CONST_CGSM_MASS_PROTON (1.67262158e-24)
+#define CONST_MKSA_YEAR 3.1536e7                /*!< Number of seconds in a year */
+#define CONST_CGSM_BOLTZMANN (1.3806503e-16)    /*!< Boltzmann constant */
+#define CONST_CGSM_MASS_PROTON (1.67262158e-24) /*!< Proton Mass */
 
-#define MIN_ABUNDANCE 1e-20     /* Minimum abundance to write in output files */
+#define MIN_ABUNDANCE 1e-20     /*!< Minimum abundance to write in output files */
 
-#define FRACTION_TIME_GRAIN_70K 3.16e-19
-#define GAS_DUST_NUMBER_RATIO 7.57e+11
-#define GRAIN_SITES_PER_CM2 3.00e+15    /* cm-2 */
-#define AVERAGE_UV_IRSF 1e8     /* photons cm-2 */
+#define FRACTION_TIME_GRAIN_70K 3.16e-19 
+#define GAS_DUST_NUMBER_RATIO 7.57e+11    
+#define GRAIN_SITES_PER_CM2 3.00e+15    /*!< cm-2 */
+#define AVERAGE_UV_IRSF 1e8     /*!< photons cm-2 */
 
 /* Data structures */
 
+/**
+ * @brief type of source
+ * A Source can be static or dynamic.
+ * With dynamic source, parameters can changed over time
+ */
 typedef enum
-{ STATIC = 0, DYNAMIC = 1 } SOURCE_MODE;
+{ 
+  STATIC = 0,  /*!< Static source */
+  DYNAMIC = 1  /*!< Dynamic source */
+} SOURCE_MODE;
 
+/**
+ * @brief type for species name
+ */
 typedef char species_name_t[MAX_CHAR_SPECIES];
 
+/**
+ * @brief struct containing an abundances and it's related index species in the network
+ */
 typedef struct
 {
-  int species_idx;
-  double abundance;
+  int species_idx; /*!< Index of specie in network */
+  double abundance; /*!< Abundance of specie */
 } abund_t;
 
+/**
+ * @brief struct containing file names of chem file and source file
+ */
 typedef struct
 {
-  char chem_file[MAX_LINE];
-  char source_file[MAX_LINE];
+  char chem_file[MAX_LINE]; /*!< Path to chem file */
+  char source_file[MAX_LINE]; /*!< Path to source file */
 } files_t;
 
+/**
+ * @brief struct conting physics parameters
+ */
 typedef struct
 {
-  double chi;
-  double cosmic;
-  double grain_size;
-  double grain_abundance;
+  double chi;             /*!< chi */
+  double cosmic;          /*!< cosmic */
+  double grain_size;      /*!< grain size */
+  double grain_abundance; /*!< grain abundances */
 } phys_t;
 
+/**
+ * @brief struct containing solver parameters
+ */
 typedef struct
 {
-  double ti;
-  double tf;
-  double abs_err;
-  double rel_err;
+  double ti;       /*!< initial time */
+  double tf;       /*!< final time */
+  double abs_err;  /*!< absolute error */
+  double rel_err;  /*!< relative error */
 } solver_t;
 
+/**
+ * @brief struct containing array of abundances 
+ */
 typedef struct
 {
-  abund_t *initial_abundances;
-  int n_initial_abundances;
+  abund_t *initial_abundances; /*!< Array of abundances */
+  int n_initial_abundances;    /*!< Number of abundances in array */
 } abundances_t;
 
+/**
+ * @brief struct containing output parameters
+ */
 typedef struct
 {
-  int *output_species_idx;
-  int n_output_species;
-  int time_steps;
-  int trace_routes;
-  char suffix[MAX_LINE];
+  int *output_species_idx; /*!< array of output species idx */
+  int n_output_species;    /*!< number of output species */
+  int time_steps;          /*!< time steps used */
+  int trace_routes;        /*!< If routes have been traced */
+  char suffix[MAX_LINE];   /*!< Suffix to sue in output files */
 } output_t;
 
+/**
+ * @brief struct containing input parametrs
+ */
 typedef struct
 {
-  files_t files;
-  phys_t phys;
-  solver_t solver;
-  abundances_t abundances;
-  output_t output;
+  files_t files;    /*!< Input files */
+  phys_t phys;      /*!< Physics parameters */
+  solver_t solver;  /*!< Solver parameters */
+  abundances_t abundances; /*!< abundances */
+  output_t output; /*!< Output parameters */
 } inp_t;
 
+/**
+ * @brief struct containing cell parameters 
+ */
 typedef struct
 {
-  double *av;
-  double *nh;
-  double *tgas;
-  double *tdust;
+  double *av;    /*!< av */
+  double *nh;    /*!< density */
+  double *tgas;  /*!< gas temperature */
+  double *tdust; /*!< dust temperature */
 } cell_t;
 
+/**
+ * @brief struct containing array of time steps
+ */
 typedef struct
 {
-  double *time_steps;
-  int n_time_steps;
+  double *time_steps; /*!< Time steps */
+  int n_time_steps;   /*!< Number of time steps */
 } time_steps_t;
 
+/**
+ * @brief struct containing a source model 
+ */
 typedef struct
 {
-  cell_t *cell;
-  time_steps_t ts;
-  int n_cells;
-  SOURCE_MODE mode;
+  cell_t *cell;    /*!< Array of cells */
+  time_steps_t ts; /*!< Time steps */
+  int n_cells;     /*!< Number of cells */
+  SOURCE_MODE mode; /*!< Source mode */
 } mdl_t;
 
-
+/**
+ * @brief struct containing a reaction
+ */
 typedef struct
 {
-  int reactant1;
-  int reactant2;
-  int reactant3;
-  int product1;
-  int product2;
-  int product3;
-  int product4;
-  double alpha;
-  double beta;
-  double gamma;
-  int reaction_type;
-  int reaction_no;
+  int reactant1; /*!< reactant 1*/
+  int reactant2; /*!< reactant 2*/
+  int reactant3; /*!< reactant 3*/
+  int product1;  /*!< product 1*/
+  int product2;  /*!< product 2*/
+  int product3;  /*!< product 3*/
+  int product4;  /*!< product 4*/
+  double alpha;  /*!< reaction alpha*/
+  double beta;   /*!< reaction beta*/
+  double gamma;  /*!< reaction gamma*/
+  int reaction_type; /*!< reaction type*/
+  int reaction_no;   /*!< reaction number*/
 } react_t;
 
+/**
+ * @brief struct containing a network
+ */
 typedef struct
 {
-  int n_species;
-  int n_alloc_species;
-  species_name_t *species_names;
-  int n_reactions;
-  react_t *reactions;
+  int n_species; /*!< number of species */
+  int n_alloc_species; /*!< number of actully allocated species */
+  species_name_t *species_names; /*!< species name */
+  int n_reactions; /*!< number of reactions */
+  react_t *reactions; /*!< array of reactions */
 } net_t;
 
+/**
+ * @brief struct containing a rates of a reaction 
+ */
 typedef struct
 {
-  int reaction_no;
-  double rate;
+  int reaction_no; /*!< number of concerned reaction */
+  double rate;     /*!< rate value */
 } r_t;
 
+/**
+ * @brief struct containing a route
+ */
 typedef struct
 {
-  r_t destruction;
-  r_t formation;
+  r_t destruction; /*!< rate of destruction */
+  r_t formation;   /*!< rate of formation */
 } rout_t;
 
+/**
+ * @brief struct containing a result 
+ */
 typedef struct
 {
-  double *abundances;
-  rout_t *routes;
-  int n_cells;
-  int n_time_steps;
-  int n_output_abundances;
+  double *abundances; /*!< abundance result */
+  rout_t *routes;     /*!< routes */
+  int n_cells;        /*!< number of cells */
+  int n_time_steps;   /*!< number of time steps */
+  int n_output_abundances; /*!< number of output abundances */
 } res_t;
 
+/**
+ * @brief bool enum
+ */
 typedef enum { false, true } bool;
 
+/**
+ * @brief solver specific struct
+ */
 typedef struct
 {
-  double *reac_rates;
-  const react_t *reactions;
-  int n_reactions;
-  int n_species;
-  double nh;
-  double av;
-  double tgas;
-  double tdust;
-  double chi;
-  double cosmic;
-  double grain_size;
-  double grain_abundance;
+  double *reac_rates; /*!< reaction rate */
+  const react_t *reactions; /*!< reactions */
+  int n_reactions;   /*!< number of reactions */
+  int n_species;     /*!< number of species */
+  double nh;         /*!< density */
+  double av;         /*!< av */
+  double tgas;       /*!< gas temperature */
+  double tdust;      /*!< dust temparature */
+  double chi;        /*!< chi */
+  double cosmic;     /*!< cosmis */
+  double grain_size; /*!< grain size */
+  double grain_abundance; /*!< grain abundance */
 } params_t;
 
+/**
+ * @brief struct containing solver related memory
+ */
 typedef struct
 {
-  void* cvode_mem;
-  N_Vector y;
-  params_t params;
-  double density;
-} astrochem_mem_t;
+  void* cvode_mem; /*!< CVODE specific pointer */
+  N_Vector y;      /*!< output vector */
+  params_t params; /*!< user solver params */
+  double density;  /*!< density */
+} astrochem_mem_t; 
 
 
 /* Fonction prototypes */
-
 int alloc_abundances( const net_t* network, double** abundances );
 
 void free_abundances( double* abundances );
@@ -243,10 +382,6 @@ void read_source (const char *source_file, mdl_t * source_mdl,
                   const inp_t * input_params, const int verbose);
 
 void free_mdl (mdl_t * source_mdl);
-
-/*void check_species (abund_t initial_abundances[], int
-                    n_initial_abundances, char *output_species[], int
-                    n_output_species, char *species[], int n_species);*/
 
 void read_network (const char *chem_file, net_t * network, const int verbose);
 

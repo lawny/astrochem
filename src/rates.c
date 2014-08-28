@@ -27,7 +27,26 @@
 #include <stdlib.h>
 #include <math.h>
 #include "libastrochem.h"
+#include "rates.h"
 
+/**
+ * @brief compute rate of reaction
+ * @param alpha reaction alpha
+ * @param beta reaction beta
+ * @param gamm reaction gamm
+ * @param reaction_type reaction type
+ * @param reaction_no reaction number ( unused )
+ * @param nh density
+ * @param av av
+ * @param tgas gas temperature
+ * @param tdust dust temperature
+ * @param chi chi
+ * @param cosmic cosmic
+ * @param grain_size grain size
+ * @param grain_abundance grain abundance
+ * @param ice_abundance ice abundance
+ * @return rate
+ */
 double
 rate (double alpha, double beta, double gamm, int reaction_type,
       int reaction_no __attribute__ ((unused)), double nh, double av,

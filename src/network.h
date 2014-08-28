@@ -19,6 +19,13 @@
    You should have received a copy of the GNU General Public License
    along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
    */
+/**
+ * @file network.h
+ * @author Sebastion Maret
+ * @date 28 August 2014
+ * @brief File containing network related private declaration
+ */
+
 
 /* Various definitions and constants */
 

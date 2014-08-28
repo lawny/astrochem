@@ -20,6 +20,14 @@
    along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
    */
 
+/**
+ * @file solve.h
+ * @author Sebastion Maret
+ * @date 28 August 2014
+ * @brief File containing solve related private declaration
+ */
+
+
 /* Various definitions and constants */
 
 #ifndef _SOLVE_H_

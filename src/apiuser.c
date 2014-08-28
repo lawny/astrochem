@@ -18,6 +18,14 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
    */
 
+/**
+ * @file apiuser.c
+ * @author Sebastion Maret
+ * @date 28 August 2014
+ * @brief File containing main function for api using program demonstration
+ */
+
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -36,6 +44,11 @@
 void usage (void);
 void version (void);
 
+/**
+ * @brief main function of demonstration program using libastrochem public api
+ * @param argc number of arguments
+ * @param argv arguments
+ */
 int
 main (int argc, char *argv[])
 {
@@ -139,10 +152,9 @@ main (int argc, char *argv[])
   return (EXIT_SUCCESS);
 }
 
-/*
-   Display help message.
-   */
-
+/**
+ * @brief Display help message.
+ */
 void
 usage (void)
 {
@@ -158,10 +170,9 @@ usage (void)
   fprintf (stdout, "Report bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
 
-/*
-   Display version.
-   */
-
+/**
+ * @brief Display version.
+ */
 void
 version (void)
 {

@@ -1,5 +1,5 @@
 /*
-   rates.h - private rates Function prototypes, various constant and data
+   rates.h - private input Function prototypes, various constant and data
    structures for Astrochem.
 
    Copyright (c) 2006-2013 Sebastien Maret
@@ -20,15 +20,18 @@
    along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
    */
 
+/**
+ * @file rates.h
+ * @author Sebastion Maret
+ * @date 28 August 2014
+ * @brief File containing input related private declaration
+ */
+
 /* Various definitions and constants */
 
 #ifndef _RATES_H_
 #define _RATES_H_
 
-double rate (double alpha, double beta, double gamm, int reaction_type,
-             int reaction_no, double nh, double av, double tgas, double tdust,
-             double chi, double cosmic, double grain_size,
-             double grain_abundance, double ice_abundance);
-
+void rate ( double alpha, double beta, double gamm, int reaction_type, int reaction_no __attribute__ ((unused)), double nh, double av, double tgas, double tdust, double chi, double cosmic, double grain_size, double grain_abundance, double ice_abundance          );
 
 #endif // _RATES_H_

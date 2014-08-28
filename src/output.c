@@ -33,6 +33,15 @@
 
 #define MAX_CHAR_FILENAME 64
 
+/**
+ * @brief write the results in output files
+ * @param n_shells number of shells
+ * @param input_params input params
+ * @param source_mdl source model
+ * @param network network
+ * @param results results
+ * @param verbose quiet if 0, verbose if 1
+ */
 void
 output (int n_shells, const inp_t * input_params, const mdl_t * source_mdl,
         const net_t * network, const res_t * results, int verbose)

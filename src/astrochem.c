@@ -18,6 +18,15 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
    */
 
+/**
+ * @file astrochem.c
+ * @author Sebastion Maret
+ * @date 28 August 2014
+ * @brief File containing main function of astrochem program, 
+ * wich compute abundances and route for a specific chemical network and model
+ */
+
+
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
@@ -36,6 +45,11 @@
 void usage (void);
 void version (void);
 
+/**
+ * @brief main function of astrochem program
+ * @param argc number of arguments
+ * @param argv arguments
+ */
 int
 main (int argc, char *argv[])
 {
@@ -138,10 +152,9 @@ main (int argc, char *argv[])
   return (EXIT_SUCCESS);
 }
 
-/*
-   Display help message.
-   */
-
+/**
+ * @brief Display help message.
+ */
 void
 usage (void)
 {
@@ -157,10 +170,9 @@ usage (void)
   fprintf (stdout, "Report bugs to <%s>.\n", PACKAGE_BUGREPORT);
 }
 
-/*
-   Display version.
-   */
-
+/**
+ * @brief Display version.
+ */
 void
 version (void)
 {
