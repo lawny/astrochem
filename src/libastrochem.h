@@ -170,7 +170,7 @@ typedef struct
 } files_t;
 
 /**
- * @brief struct conting physics parameters
+ * @brief struct containing physics parameters
  */
 typedef struct
 {

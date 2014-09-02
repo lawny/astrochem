@@ -32,6 +32,10 @@
 #ifndef _RATES_H_
 #define _RATES_H_
 
-void rate ( double alpha, double beta, double gamm, int reaction_type, int reaction_no __attribute__ ((unused)), double nh, double av, double tgas, double tdust, double chi, double cosmic, double grain_size, double grain_abundance, double ice_abundance          );
+double
+rate (double alpha, double beta, double gamm, int reaction_type,
+      int reaction_no __attribute__ ((unused)), double nh, double av,
+      double tgas, double tdust, double chi, double cosmic,
+      double grain_size, double grain_abundance, double ice_abundance);
 
 #endif // _RATES_H_
