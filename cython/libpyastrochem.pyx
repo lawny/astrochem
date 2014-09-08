@@ -2,7 +2,6 @@ from libc.stdlib cimport malloc, free
 from libc.string cimport strcmp
 from cpython.string cimport PyString_AsString
 
-
 cdef extern from "libastrochem.h":
     cdef double CHI_DEFAULT
     cdef double COSMIC_DEFAULT
@@ -22,7 +21,7 @@ cdef extern from "libastrochem.h":
         double grain_abundance
 
     ctypedef struct net_t:
-        int n_species 
+        int n_species
         char **species_names
 
     ctypedef struct cell_t:
@@ -42,7 +41,6 @@ cdef extern from "libastrochem.h":
     int solver_init( const cell_t* cell, const net_t* network, const phys_t* phys, const double* abundances , double density, double abs_err, double rel_err, astrochem_mem_t* astrochem_mem )
     int solve( const astrochem_mem_t* astrochem_mem, const net_t* network, double* abundances, double time , int verbose )
     void solver_close( astrochem_mem_t* astrochem_mem )
-
 
 _ABS_ERR_DEFAULT = ABS_ERR_DEFAULT
 _REL_ERR_DEFAULT = REL_ERR_DEFAULT
@@ -93,7 +91,7 @@ cdef class Cell:
     cdef public double av
     cdef public double nh
     cdef public double temp
-   
+
     def __cinit__( self, double av, double nh, double temp ):
         self.av = av
         self.nh = nh
@@ -129,14 +127,13 @@ cdef class Solver:
         cdef double* initial_abundances_val = <double*>malloc(len(initial_abundances) * sizeof(double))
         cdef int j = 0
         for i in initial_abundances:
-            initial_abundances_str[j] = PyString_AsString(i) 
+            initial_abundances_str[j] = PyString_AsString(i)
             initial_abundances_val[j] = initial_abundances[i]
-#            print i, j, initial_abundances_str[j], initial_abundances_val[j]
-            j+=1 
+            j+=1
         set_initial_abundances( < const char** >initial_abundances_str, len(initial_abundances), initial_abundances_val,  &c_net, self.abundances )
         free( initial_abundances_str )
         free( initial_abundances_val )
-        
+
         solver_init( &c_cell, &c_net, &c_phys , self.abundances, density, abs_err, rel_err, &self.astrochemstruct )
 
     def __dealloc__(self):
@@ -154,7 +151,7 @@ cdef class Solver:
             py_string =  c_net.species_names[i]
             ret[py_string] = self.abundances[i]
         return ret
-        
+
     property density:
         def __get__(self):
             return self.astrochemstruct.params.nh
@@ -167,4 +164,3 @@ cdef class Solver:
         def __set__(self, double temp):
             self.astrochemstruct.params.tgas = temp
             self.astrochemstruct.params.tdust = temp
-
