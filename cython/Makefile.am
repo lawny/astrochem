@@ -1,7 +1,7 @@
 #  Makefile.am - Automake file for Astrochem
 #
 #  Copyright (c) 2006-2013 Sebastien Maret
-# 
+#
 #  This file is part of Astrochem.
 #
 #  Astrochem is free software: you can redistribute it and/or modify
@@ -13,10 +13,20 @@
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = lib src networks doc tests cython
+.pyx.c:
+	@CYTHON@ -o $@ $<
 
-EXTRA_DIST = BUGS
+CYTHON_CFLAGS = -pthread -fno-strict-aliasing -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -DNDEBUG -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -fPIC
+
+CYTHON_LDFLAGS = -pthread -shared -Wl,-O1,--sort-common,--as-needed,-z,relro
+
+
+lib_LTLIBRARIES = libpyastrochem.la
+libpyastrochem_la_SOURCES = libpyastrochem.pyx
+libpyastrochem_la_CFLAGS = ${PYTHON_INCLUDE} $(CYTHON_CFLAGS)
+libpyastrochem_la_LDFLAGS = -version-info 0:0:0 $(CYTHON_LDFLAGS) -L/usr/local/lib -lastrochem -lpython2.7
+

@@ -1,4 +1,4 @@
-import astrochem
+import libpyastrochem
 import numpy
 
 density = numpy.logspace(4, 6, 128) # typically this would come from an analytical formulae
