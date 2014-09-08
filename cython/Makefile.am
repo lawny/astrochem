@@ -24,9 +24,10 @@ CYTHON_CFLAGS = -pthread -fno-strict-aliasing -march=x86-64 -mtune=generic -O2 -
 
 CYTHON_LDFLAGS = -pthread -shared -Wl,-O1,--sort-common,--as-needed,-z,relro
 
-
-lib_LTLIBRARIES = libpyastrochem.la
+pkgpyexec_PYTHON = __init__.py
+pkgpyexec_LTLIBRARIES = libpyastrochem.la
 libpyastrochem_la_SOURCES = libpyastrochem.pyx
 libpyastrochem_la_CFLAGS = ${PYTHON_INCLUDE} $(CYTHON_CFLAGS)
-libpyastrochem_la_LDFLAGS = -version-info 0:0:0 $(CYTHON_LDFLAGS) -L/usr/local/lib -lastrochem -lpython2.7
+libpyastrochem_la_LIBADD = $(top_builddir)/src/libastrochem.la -lpython2.7
+libpyastrochem_la_LDFLAGS = $(CYTHON_LDFLAGS)  -version-info 0:0:0
 
