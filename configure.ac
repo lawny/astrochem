@@ -99,8 +99,7 @@ AS_IF([test -z "$PYTHON_INCLUDE"], [
   AS_IF([test -z "$PYTHON_CONFIG"], [
     AC_PATH_PROGS([PYTHON_CONFIG],
                   [python$PYTHON_VERSION-config python-config],
-                  [no],
-                  [`dirname $PYTHON`])
+                  [no])
     AS_IF([test "$PYTHON_CONFIG" = no], [AC_MSG_ERROR([cannot find python-config for $PYTHON.])])
   ])
   AC_MSG_CHECKING([python include flags])
