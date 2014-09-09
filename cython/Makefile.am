@@ -27,7 +27,7 @@ CYTHON_LDFLAGS = -pthread -shared -Wl,-O1,--sort-common,--as-needed,-z,relro
 pkgpyexec_PYTHON = __init__.py
 pkgpyexec_LTLIBRARIES = libpyastrochem.la
 libpyastrochem_la_SOURCES = libpyastrochem.pyx
-libpyastrochem_la_CFLAGS = ${PYTHON_INCLUDE} $(CYTHON_CFLAGS)
+libpyastrochem_la_CFLAGS = ${PYTHON_INCLUDE} $(CYTHON_CFLAGS) -I../src
 libpyastrochem_la_LIBADD = $(top_builddir)/src/libastrochem.la -lpython2.7
 libpyastrochem_la_LDFLAGS = $(CYTHON_LDFLAGS)  -version-info 0:0:0
 
