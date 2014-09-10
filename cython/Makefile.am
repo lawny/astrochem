@@ -20,8 +20,8 @@
 .pyx.c:
 	@CYTHON@ -o $@ $<
 
-CYTHON_CFLAGS = -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing 
-CYTHON_LDFLAGS = -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -shared 
+CYTHON_CFLAGS = -pthread -fPIC -fwrapv -Wall -fno-strict-aliasing 
+CYTHON_LDFLAGS = -pthread -fPIC -fwrapv -Wall -fno-strict-aliasing -shared 
 
 pkgpyexec_PYTHON = __init__.py
 pkgpyexec_LTLIBRARIES = libpyastrochem.la
