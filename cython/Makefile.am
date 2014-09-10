@@ -20,9 +20,8 @@
 .pyx.c:
 	@CYTHON@ -o $@ $<
 
-CYTHON_CFLAGS = -pthread -fno-strict-aliasing -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -DNDEBUG -march=x86-64 -mtune=generic -O2 -pipe -fstack-protector --param=ssp-buffer-size=4 -fPIC
-
-CYTHON_LDFLAGS = -pthread -shared -Wl,-O1,--sort-common,--as-needed,-z,relro
+CYTHON_CFLAGS = -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing 
+CYTHON_LDFLAGS = -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -shared 
 
 pkgpyexec_PYTHON = __init__.py
 pkgpyexec_LTLIBRARIES = libpyastrochem.la
