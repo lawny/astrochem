@@ -1,8 +1,8 @@
 /*
    network_test.c - Test the solve() function
-
-   Copyright (c) 2006-2013 Sebastien Maret
-
+   
+   Copyright (c) 2006-2014 Sebastien Maret
+   
    This file is part of Astrochem.
 
    Astrochem is free software: you can redistribute it and/or modify

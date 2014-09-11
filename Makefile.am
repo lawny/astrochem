@@ -1,6 +1,6 @@
 #  Makefile.am - Automake file for Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
+#  Copyright (c) 2006-2014 Sebastien Maret
 # 
 #  This file is part of Astrochem.
 #
@@ -17,6 +17,8 @@
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
+ACLOCAL_AMFLAGS = -I m4
+
 SUBDIRS = lib src networks doc tests cython
 
-EXTRA_DIST = BUGS
+EXTRA_DIST = README.md
