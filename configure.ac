@@ -1,6 +1,6 @@
 #  configure.ac - Autoconf file for Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
+#  Copyright (c) 2006-2014 Sebastien Maret
 # 
 #  This file is part of Astrochem.
 #
@@ -21,9 +21,10 @@ AC_PREREQ(2.59)
 AC_INIT(astrochem, 0.6-dev, http://github.com/smaret/astrochem/issues)
 RELEASE_DATE="Not released yet"
 AC_SUBST([RELEASE_DATE])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADER([config.h])
+AC_CONFIG_MACRO_DIR([m4])
 
 # Set package options
 AC_ARG_ENABLE([openmp],	AC_HELP_STRING([--enable-openmp], [enable openmp (default is no)]))
@@ -47,6 +48,7 @@ if test x$ax_lapack_ok = xyes; then
 fi
 AC_CHECK_LIB(sundials_cvode, main,, AC_MSG_ERROR(Could not find SUNDIALS/CVODE library. Make sure you set CFLAGS to include the include directory and set LDFLAGS to include the library directory.))
 AC_CHECK_LIB(sundials_nvecserial, main,, AC_MSG_ERROR(Could not find SUNDIALS/NVECSERIAL library. Make sure you set CFLAGS to include the include directory and set LDFLAGS to include the library directory.))
+AC_CHECK_TYPE(DlsMat,, AC_MSG_ERROR(DlsMat type is undefined. Make sure that your SUNDIALS version >= 2.4.0), [[#include <cvode/cvode_direct.h>]])
 AC_CHECK_LIB(sundials_cvode, CVLapackDense,, AC_MSG_WARN(SUNDIALS was compiled without LAPACK.))
 if test x$ac_cv_lib_sundials_cvode_CVLapackDense = xyes && test x$ax_lapack_ok = xyes; then
    use_lapack="yes"
