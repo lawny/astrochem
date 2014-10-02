@@ -82,7 +82,7 @@ fi
 if test -z $CYTHON; then
     AC_PATH_PROG( CYTHON, cython )
 else
-    AC_MSG_CHECKING([Checking Cython path $CYTHON is correct])
+    AC_MSG_CHECKING([provided cython path $CYTHON is correct])
     AS_IF($CYTHON -V > /dev/null 2>&1, , CYTHON="")
     if test -z $CYTHON; then
         AC_MSG_RESULT([ no ])
@@ -98,15 +98,74 @@ AC_MSG_WARN([[Cannot find cython, which is required to build libpyastrochem bind
 fi
 AM_CONDITIONAL([HAVE_CYTHON], [test  "x$CYTHON" != "x" ])
 
+#check for doxygen
+if test -z $DOXYGEN; then
+    AC_PATH_PROG( DOXYGEN, doxygen )
+else
+    AC_MSG_CHECKING([provided doxygen path $DOXYGEN is correct])
+    AS_IF($DOXYGEN -v > /dev/null 2>&1, , DOXYGEN="")
+    if test -z $DOXYGEN; then
+        AC_MSG_RESULT([ no ])
+    else
+        AC_MSG_RESULT([ yes ])
+    fi
+fi
+
+HAVE_DOXYGEN="yes"
+if test -z $DOXYGEN; then
+HAVE_DOXYGEN="no"
+AC_MSG_WARN([[Cannot find doxygen, which is required to build c api documentation.  It will not be built.]])
+fi
+AM_CONDITIONAL([HAVE_DOXYGEN], [test  "x$DOXYGEN" != "x" ])
+
+#check for sphinx
+if test -z $SPHINXBUILD; then
+    AC_PATH_PROG( SPHINXBUILD, sphinx-build )
+else
+    AC_MSG_CHECKING([provided sphinxbuild path $SPHINXBUILD is correct])
+    AS_IF($SPHINXBUILD --version > /dev/null 2>&1, , SPHINXBUILD="")
+    if test -z $SPHINXBUILD; then
+        AC_MSG_RESULT([ no ])
+    else
+        AC_MSG_RESULT([ yes ])
+    fi
+fi
+
+HAVE_SPHINXBUILD="yes"
+if test -z $SPHINXBUILD; then
+HAVE_SPHINXBUILD="no"
+AC_MSG_WARN([[Cannot find sphinxbuild, which is required to build python api documentation.  It will not be built.]])
+fi
+AM_CONDITIONAL([HAVE_SPHINXBUILD], [test  "x$SPHINXBUILD" != "x" ])
+
+#check for breathe
+HAVE_BREATHE="yes"
+AC_MSG_CHECKING([breathe module is available])
+AS_IF($PYTHON -c "import breathe" , , HAVE_BREATHE="no")
+
+if test $HAVE_BREATHE != "yes"; then
+AC_MSG_RESULT([ no ])
+AC_MSG_WARN([[Cannot find breathe, which is required to build c api documentation in sphinx.  It will not be built.]])
+else
+AC_MSG_RESULT([ yes ])
+fi
+
+
+
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
-		 doc/astrochem.tex
-		 doc/astrochem.1
-		 doc/plabun.1
-		 doc/plroute.1
-		 doc/chmconvert.1
+		 doc/latex/astrochem.tex
+		 doc/latex/Makefile
+		 doc/man/Makefile
+		 doc/man/astrochem.1
+		 doc/man/plabun.1
+		 doc/man/plroute.1
+		 doc/man/chmconvert.1
 		 doc/examples/Makefile
 		 doc/examples/dynamic/Makefile
+         doc/doxygen/astrochem.dox
+         doc/doxygen/Makefile
+         doc/sphinx/Makefile
          src/Makefile
 		 src/chmconvert.py
 		 src/plabun.py
@@ -139,4 +198,7 @@ echo "Python interpreter: ${PYTHON}
 Python version:     ${PYTHON_VERSION}
 Biggles module:     ${HAVE_PYMOD_BIGGLES}
 Python api:         ${HAVE_CYTHON}
+Doxygen:            ${HAVE_DOXYGEN}
+Sphinx Build:       ${HAVE_SPHINXBUILD}
+Breathe:            ${HAVE_BREATHE}
 ============================================="

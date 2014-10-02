@@ -17,4 +17,15 @@
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = latex man examples doxygen sphinx
+if HAVE_DOXYGEN
+html:
+	${DOXYGEN} ./astrochem.dox
+
+clean-local:
+	rm -rf ./html ./xml ./latex
+endif
+
+
+
+
+

@@ -1,3 +1,8 @@
+"""
+.. moduleauthor:: Mathieu Westphal < mathieu.westphal@obs.ujf-grenoble.fr >
+
+
+"""
 from libc.stdlib cimport malloc, free
 from libc.string cimport strcmp
 from cpython.string cimport PyString_AsString
@@ -49,15 +54,21 @@ cdef class Network:
     """
     Chemical Network class
 
-    Network( const char* chem_file, int verbose )
-    Create a chemical network
-
-    Arguments:
-    chem_file       -- File containing a network to load
-    verbose         -- Verbose if 1, Quiet if 0
+    :param chem_file:  Chemical network file string to load network from and use in solver.
+    :type chem_file: const char*
+    :param verbose: verbose if 1, quiet if 0
+    :type verbose: int
 
     """
     cdef net_t thisstruct
+
+    #for sphinx doc only
+    def __init__( self, const char* chem_file, int verbose ):
+        """
+        __init__( chem_file, verbose )
+        """
+
+    #real cython init
     def __cinit__( self, const char* chem_file, int verbose ):
         read_network( chem_file, &self.thisstruct, verbose )
 
@@ -70,6 +81,13 @@ cdef class Phys:
     """
     cdef public phys_t thisstruct
 
+    #for Sphinx doc only
+    def __init__( self ):
+        """
+        __init__( )
+        """
+
+    #real cython init
     def __cinit__( self ):
         self.thisstruct.chi = CHI_DEFAULT
         self.thisstruct.cosmic = COSMIC_DEFAULT
@@ -79,6 +97,10 @@ cdef class Phys:
     property chi:
         """
         Chi physical property
+
+        :getter: Returns this chi physical property
+        :setter: Sets this chi physical property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.chi
@@ -88,6 +110,10 @@ cdef class Phys:
     property cosmic:
         """
         Cosmic physical property
+
+        :getter: Returns this cosmic physical property
+        :setter: Sets this cosmic physical property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.cosmic
@@ -97,6 +123,10 @@ cdef class Phys:
     property grain_size:
         """
         Grain Size physical property
+
+        :getter: Returns this grain size physical property
+        :setter: Sets this grain size physical property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.grain_size
@@ -106,6 +136,10 @@ cdef class Phys:
     property grain_abundance:
         """
         Grain Abundance physical property
+
+        :getter: Returns this grain abundance physical property
+        :setter: Sets this grain abundance physical property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.grain_abundance
@@ -116,17 +150,24 @@ cdef class Cell:
     """
     Chemical cell class
 
-    Cell( double av, double nh, double tgas, double tdust )
-    Create a chemical cell class
-
-    Arguments:
-    av    -- av to use
-    nh    -- nh to use
-    tgas  -- tgas to use
-    tdust -- tdust to use
+    :param av:  av parameters of the cell.
+    :type av: double
+    :param nh:  nh parameters of the cell.
+    :type nh: double
+    :param tgas:  tgas parameters of the cell.
+    :type tgas: double
+    :param tdust:  tdust parameters of the cell.
+    :type tdust: double
     """
     cdef public cell_t thisstruct
 
+    #for Sphinx doc only
+    def __init__( self, double av, double nh, double tgas, double tdust ):
+        """
+        __init__( av, nh, tgas, tdust )
+        """
+
+    # real cython init
     def __cinit__( self, double av, double nh, double tgas, double tdust ):
         self.thisstruct.av = av
         self.thisstruct.nh = nh
@@ -136,6 +177,10 @@ cdef class Cell:
     property av:
         """
         av cell property
+
+        :getter: Returns this av cell property
+        :setter: Sets this av cell property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.av
@@ -145,6 +190,10 @@ cdef class Cell:
     property nh:
         """
         nh cell property
+
+        :getter: Returns this nh cell property
+        :setter: Sets this nh cell property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.nh
@@ -154,6 +203,10 @@ cdef class Cell:
     property tgas:
         """
         tgas cell property
+
+        :getter: Returns this tgas cell property
+        :setter: Sets this tgas cell property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.tgas
@@ -163,6 +216,10 @@ cdef class Cell:
     property tdust:
         """
         tdust cell property
+
+        :getter: Returns this tdust cell property
+        :setter: Sets this tdust cell property
+        :type: double
         """
         def __get__(self):
             return self.thisstruct.tdust
@@ -171,26 +228,40 @@ cdef class Cell:
 
 cdef class Solver:
     """
-    Chemical reaction solver
+    Chemical solver class. Compute abundances in a network at a certain time using inital abundances and differents parameters.
 
-    Solver( cell , const char* chem_file, phys, abs_err, rel_err, initial_abundances , double density, int verbose )
-    Create a chemical reaction solver
+    :param cell:  Chemical cell class to use in solver.
+    :type cell: :class:`.Cell`
+    :param chem_file:  Chemical network file string to load network from and use in solver.
+    :type chem_file: const char*
+    :param phys:  Physical properties class to use in solver.
+    :type phys: :class:`.Phys`
+    :param abs_err: Absolute acceptable error to use in solver.
+    :type abs_err: double
+    :param rel_err: Relative acceptable error to use in solver.
+    :param initial_abundances: Initial abundances dictionnary with format {Species:Value}
+    :type initial_abundances: dictionnary
+    :param density: Density to use in solver
+    :type denisty: double
+    :param verbose: verbose if 1, quiet if 0
+    :type verbose: int
+    :returns:  :class:`.Solver`
+    :raises: MemoryError
 
-    Arguments:
-    cell                 -- Chemical cell class to use in solver
-    chem_file            -- Chemical network file string to load network from and use in solver
-    phys                 -- Physical properties class to use in solver
-    abs_err              -- Absolute acceptable error to use in solver
-    rel_err              -- Relative acceptable error to use in solver
-    initial_abundances   -- Initial abundances dictionnary with format {Species:Value}
-    density              -- Density to use in solver
-    verbose              -- verbose if 1, quiet if 0
     """
+
     cdef astrochem_mem_t astrochemstruct
     cdef double* abundances
     cdef Network network
     cdef int verbose
 
+    # For Sphinx only (only used for docstring)
+    def __init__( self , cell , chem_file, phys, abs_err, rel_err, initial_abundances , density, verbose ):
+        """
+        __init__( cell , chem_file, phys, abs_err, rel_err, initial_abundances , density, verbose )
+        """
+
+    # Real Cython init
     def __cinit__( self , cell , const char* chem_file, phys, abs_err, rel_err, initial_abundances , double density, int verbose ):
         self.verbose = verbose
         self.network = Network( chem_file, verbose )
@@ -219,12 +290,14 @@ cdef class Solver:
 
     def solve(self, time , new_cell=0 ):
         """
-        solve( time , new_cell )
         Solve chemical reaction for a certain time
 
-        Arguments:
-        time     -- time to solve the system at
-        new_cell -- cell class to use in solver, optionnal
+        :param time:  time to solve the system at.
+        :type time: double
+        :param new_cell:  cell class to use in solver, optionnal
+        :type new_cell: :class:`.Cell`
+        :returns:  dictionnary -- computed abundances.
+        :raises: ArithmeticError
         """
         cdef net_t c_net = self.network.thisstruct
         cdef cell_t c_new_cell

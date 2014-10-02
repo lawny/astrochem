@@ -17,4 +17,7 @@
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = latex man examples doxygen sphinx
+
+man_MANS = astrochem.1 plabun.1 plroute.1 chmconvert.1
+
+EXTRA_DIST = $(man_MANS) 
