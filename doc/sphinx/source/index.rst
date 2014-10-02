@@ -13,13 +13,13 @@ Contents:
 
    libpyastrochem
 
-.. ifconfig:: breathe is 'true' 
+.. ifconfig:: breathe is 'true'
 
     .. only:: doxygen
 
        .. toctree::
            libastrochem
-   
+
 Indices and tables
 ==================
 

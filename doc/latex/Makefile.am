@@ -1,7 +1,7 @@
 #  Makefile.am - Automake file for Astrochem
 #
 #  Copyright (c) 2006-2014 Sebastien Maret
-# 
+#
 #  This file is part of Astrochem.
 #
 #  Astrochem is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -34,6 +34,6 @@ astrochem.pdf: astrochem.tex astrochem.bib fig1.pdf fig2.pdf
 
 CLEANFILES = astrochem.tex astrochem.aux astrochem.log astrochem.bbl	\
 	astrochem.blg astrochem.pdf astrochem.1 plabun.1 plroute.1	\
-	chmconvert.1 
+	chmconvert.1
 endif
 endif

@@ -11,7 +11,7 @@ BUILDDIR      = build
 if HAVE_DOXYGEN
 DOXYGEN_FLAG = -t doxygen
 else
-DOXYGEN_FLAG = 
+DOXYGEN_FLAG =
 endif
 
 # Internal variables.
@@ -39,8 +39,8 @@ help:
 clean:
 	-rm -rf $(BUILDDIR)/
 
-html: 
-	$(SPHINXBUILD) $(DOXYGEN_FLAG)  -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html 
+html:
+	$(SPHINXBUILD) $(DOXYGEN_FLAG)  -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
@@ -101,7 +101,7 @@ EXTRA_DIST = \
 	./source/conf.py \
 	./source/index.rst \
 	./source/libpyastrochem.rst \
-	./source/libastrochem.rst 
+	./source/libastrochem.rst
 
 
 dist-hook:
