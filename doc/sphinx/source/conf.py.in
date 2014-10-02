@@ -275,7 +275,7 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 
-breathe_projects = { "astrochem": "/home/glow/data/Ipag/astrochem-dev/doc/doxygen/xml/" }
+breathe_projects = { "astrochem": "@abs_top_srcdir@/doc/doxygen/xml/" }
 breathe_default_project = "astrochem"
 
 def setup(app):

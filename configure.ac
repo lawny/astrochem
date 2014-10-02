@@ -166,6 +166,7 @@ AC_CONFIG_FILES([Makefile
          doc/doxygen/astrochem.dox
          doc/doxygen/Makefile
          doc/sphinx/Makefile
+         doc/sphinx/source/conf.py
          src/Makefile
 		 src/chmconvert.py
 		 src/plabun.py
