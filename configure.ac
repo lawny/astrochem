@@ -141,7 +141,7 @@ AM_CONDITIONAL([HAVE_SPHINXBUILD], [test  "x$SPHINXBUILD" != "x" ])
 #check for breathe
 HAVE_BREATHE="yes"
 AC_MSG_CHECKING([breathe module is available])
-AS_IF($PYTHON -c "import breathe" , , HAVE_BREATHE="no")
+AS_IF($PYTHON -c "import breathe" > /dev/null 2>&1 , , HAVE_BREATHE="no")
 
 if test $HAVE_BREATHE != "yes"; then
 AC_MSG_RESULT([ no ])
