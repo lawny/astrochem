@@ -1,7 +1,7 @@
 #  configure.ac - Autoconf file for Astrochem
 #
 #  Copyright (c) 2006-2014 Sebastien Maret
-# 
+#
 #  This file is part of Astrochem.
 #
 #  Astrochem is free software: you can redistribute it and/or modify
@@ -13,7 +13,7 @@
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -56,7 +56,7 @@ if test x$ac_cv_lib_sundials_cvode_CVLapackDense = xyes && test x$ax_lapack_ok =
    AC_DEFINE([USE_LAPACK], 1, [Define to use LAPACK.])
 else
    use_lapack="no"
-fi  
+fi
 
 # Check for Python modules
 AC_PYTHON_MODULE(numpy)
@@ -93,7 +93,7 @@ fi
 
 HAVE_CYTHON="yes"
 if test -z $CYTHON; then
-HAVE_CYTHON="no" 
+HAVE_CYTHON="no"
 AC_MSG_WARN([[Cannot find cython, which is required to build libpyastrochem bindings.  They will not be built.]])
 fi
 AM_CONDITIONAL([HAVE_CYTHON], [test  "x$CYTHON" != "x" ])
@@ -139,18 +139,11 @@ fi
 AM_CONDITIONAL([HAVE_SPHINXBUILD], [test  "x$SPHINXBUILD" != "x" ])
 
 #check for breathe
-HAVE_BREATHE="yes"
-AC_MSG_CHECKING([breathe module is available])
-AS_IF($PYTHON -c "import breathe" > /dev/null 2>&1 , , HAVE_BREATHE="no")
-
-if test $HAVE_BREATHE != "yes"; then
-AC_MSG_RESULT([ no ])
-AC_MSG_WARN([[Cannot find breathe, which is required to build c api documentation in sphinx.  It will not be built.]])
-else
-AC_MSG_RESULT([ yes ])
+AC_PYTHON_MODULE(breathe, )
+if test $HAVE_PYMOD_BREATHE = "no"; then
+   AC_MSG_WARN(Cannot find breathe, which is required to build c api documentation in sphinx.  It will not be built.)
 fi
-
-
+AM_CONDITIONAL([HAVE_PYMOD_BREATHE], [test $HAVE_PYMOD_BREATHE = "yes"])
 
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
@@ -202,5 +195,5 @@ Biggles module:     ${HAVE_PYMOD_BIGGLES}
 Python api:         ${HAVE_CYTHON}
 Doxygen:            ${HAVE_DOXYGEN}
 Sphinx Build:       ${HAVE_SPHINXBUILD}
-Breathe:            ${HAVE_BREATHE}
+Breathe:            ${HAVE_PYMOD_BREATHE}
 ============================================="
