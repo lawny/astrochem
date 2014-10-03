@@ -94,7 +94,6 @@ main (void)
   fprintf (f, "time_steps = 64\n");
   fprintf (f, "abundances = CO,C(+),C,e(-),OH,H3O(+),H,H2,HCO(+),CO(+),C4H,HCO(+),CH(+),CH\n");
   fprintf (f, "trace_routes = 1\n");
-  fprintf (f, "[mpi]\n");
 
   fclose (f);
 
