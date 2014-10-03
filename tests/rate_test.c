@@ -1,7 +1,7 @@
 /* 
    rate_test.c - Test the rate() function
    
-   Copyright (c) 2006-2013 Sebastien Maret
+   Copyright (c) 2006-2014 Sebastien Maret
    
    This file is part of Astrochem.
 
@@ -22,7 +22,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include "../src/astrochem.h"
+#include "../src/libastrochem.h"
+#include "../src/rates.h"
 
 int equaltol (double value1, double value2, double reltol);
 

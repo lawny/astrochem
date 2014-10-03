@@ -2,7 +2,7 @@
 #
 #  plabun - Plot the abundances computed by Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
+#  Copyright (c) 2006-2014 Sebastien Maret
 # 
 #  This file is part of Astrochem.
 #
@@ -15,7 +15,7 @@
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -25,7 +25,7 @@ import os.path
 import getopt
 import biggles
 from numpy import *
-from libastrochem import readabun, _totex_species
+from astrochem.libastrochemtools import readabun, _totex_species
 
 PACKAGE_VERSION = "@PACKAGE_VERSION@"
 PACKAGE_BUGREPORT = "@PACKAGE_BUGREPORT@"
@@ -48,18 +48,18 @@ Options:
    -s, --shell=index        Set the shell number (default 0)
    -x, --xrange=xmin,xmax   Set the x axis range
    -y, --yrange=ymin,ymax   Set the y axis range
-   
+
 See the plabun(1) man page for more information"""
     print "Report bugs to <%s>." % PACKAGE_BUGREPORT
 
 def version():
     """
     Display version number
-    
+
     """
 
     print "This is plabun, version %s" % PACKAGE_VERSION
-    print """Copyright (c) 2006-2013 Sebastien Maret
+    print """Copyright (c) 2006-2014 Sebastien Maret
 
 This is free software. You may redistribute copies of it under the terms
 of the GNU General Public License. There is NO WARRANTY, to the extent
@@ -126,7 +126,7 @@ def main():
         args = args[1:]
         if len(args) == 0:
             usage()
-            sys.exit(1)            
+            sys.exit(1)
     elif args[0] == "av":
         sys.stderr.write("plabun: error: av command is deprecated.\n")
         sys.exit()
@@ -135,7 +135,7 @@ def main():
     if len(filenames) > 6:
         sys.stderr.write("plabun: warning: at most 6 species can be plotted, ignoring others.\n")
         filenames = filenames[0:5]
-	
+
     p = biggles.FramedPlot()
     p.title = "Abundances"
     p.xtitle = "Time (yr)"
@@ -150,11 +150,11 @@ def main():
 
     # Stack for line colors
     linecolor_stack = ["red", "blue", "green", "yellow", "orange", "cyan"]
-    
+
     # Plot the abundances in each file
 
     for filename in filenames:
-        
+
         # Read the abundance file
         try:
             time, abund = readabun(filename)
@@ -173,7 +173,7 @@ def main():
             abund = abund[:, s]
         except IndexError:
             sys.stderr.write("plabun: error: shell index is out of bounds.\n")
-            sys.exit(1)            
+            sys.exit(1)
 
         # Drop zeros and negative values
         index = abund > 0
@@ -191,7 +191,7 @@ def main():
         c.label = "$" + _totex_species(spec) + "$"
         curves.append(c)
         p.add(c)
-    
+
     # Draw the plot key
     p.add(biggles.PlotKey(.1, .90, curves))
 
@@ -199,10 +199,10 @@ def main():
     if len(curves) == 0:
         sys.stderr.write("plabun: error: nothing to plot.\n")
         sys.exit(1)
-    
+
     if output:
 	p.write_eps(output)
     else:
         p.show()
 
-main()			  
+main()

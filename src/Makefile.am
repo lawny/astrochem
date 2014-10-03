@@ -1,7 +1,7 @@
 #  Makefile.am - Automake file for Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
-# 
+#  Copyright (c) 2006-2014 Sebastien Maret
+#
 #  This file is part of Astrochem.
 #
 #  Astrochem is free software: you can redistribute it and/or modify
@@ -13,17 +13,36 @@
 #  WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 #  General Public License for more details.
-# 
+#
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
 AM_CFLAGS = -DPKGDATADIR=\"$(pkgdatadir)\"
 
-AM_CFLAGS += ${OPENMP_CFLAGS}
+AM_CFLAGS += ${OPENMP_CFLAGS} -Wall
 
-bin_PROGRAMS = astrochem chmconvert
 
-astrochem_SOURCES = astrochem.c astrochem.h input.c network.c rates.c solve.c output.c
+lib_LTLIBRARIES = libastrochem.la
+libastrochem_la_SOURCES = input.c network.c rates.c solve.c output.c
+libastrochem_la_LDFLAGS = -version-info 0:0:0
+include_HEADERS = libastrochem.h
+
+bin_PROGRAMS = astrochem apiuser chmconvert
+
+if HAVE_MPI
+bin_PROGRAMS += astrochem_mpi
+astrochem_mpi_SOURCES = astrochem.c
+astrochem_mpi_CFLAGS = -DWITH_MPI ${MPI_CFLAGS}
+astrochem_mpi_LDFLAGS = $(MPI_CLDFLAGS)
+astrochem_mpi_LDADD = -lastrochem
+endif
+
+astrochem_SOURCES = astrochem.c
+astrochem_LDADD = -lastrochem
+
+apiuser_SOURCES = apiuser.c
+apiuser_LDADD = -lastrochem
+
 
 chmconvert_SOURCES = chmconvert.py
 
@@ -33,7 +52,7 @@ chmconvert$(EXEEXT): chmconvert.py
 
 CLEANFILES = chmconvert.py
 
-if HAVE_PYMOD_BIGGLES 
+if HAVE_PYMOD_BIGGLES
 
 bin_PROGRAMS += plabun plroute
 
@@ -55,6 +74,7 @@ endif
 
 install-exec-hook:
 	mv $(DESTDIR)$(bindir)/chmconvert $(DESTDIR)$(bindir)/chmconvert.tmp
+	sed -i 's/libastrochemtools/astrochem.libastrochemtools/g'  $(DESTDIR)$(bindir)/chmconvert.tmp
 	sed -e 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/chmconvert.tmp > $(DESTDIR)$(bindir)/chmconvert
 	chmod a+x $(DESTDIR)$(bindir)/chmconvert
 	rm -f $(DESTDIR)$(bindir)/chmconvert.tmp

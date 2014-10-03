@@ -1,7 +1,7 @@
-/* 
+/*
    input.c - Read the input files needed by Astrochem.
 
-   Copyright (c) 2006-2013 Sebastien Maret
+   Copyright (c) 2006-2014 Sebastien Maret
 
    This file is part of Astrochem.
 
@@ -17,7 +17,8 @@
 
    You should have received a copy of the GNU General Public License
    along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
- */
+   */
+
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
@@ -28,19 +29,37 @@
 #include <string.h>
 #include <errno.h>
 #include <math.h>
-#include "astrochem.h"
 
+#include "libastrochem.h"
+#include "input.h"
+
+#include "network.h"
+
+/**
+ * @brief Different type of reading mode
+ */
 typedef enum
-{ R_STATIC = 0, R_DYNAMIC = 1, R_TIMES = 2 } SOURCE_READ_MODE;
+{
+  R_STATIC = 0,  /**< Static Reading Mode, only cells >*/
+  R_DYNAMIC = 1, /**< Dynamic Cells Reading Mode >*/
+  R_TIMES = 2    /**< Dynamic Time Steps Reading Mode >*/
+} SOURCE_READ_MODE;
 
 void alloc_mdl (mdl_t * source_mdl, int n_cells, int n_time_steps);
 
 int get_nb_active_line_section (const char *file, const char *section);
 
-/*
-   Read the input file containing the parameters needed by the code:
-   name of the chemistry network and source file names, physical 
-   parameters, solver parameters, and initial abundances.
+/**
+ * @brief Read the input file
+ *
+ * Read the input file containing the parameters needed by the code:
+ * name of the chemistry network and source file names, physical
+ * parameters, solver parameters, and initial abundances.
+ *
+ * @param input_file path to input file
+ * @param[out] input_params output input params from input file
+ * @param network network to use to find species
+ * @param verbose 0 means quiet, 1 means verbose
  */
 void
 read_input (const char *input_file, inp_t * input_params,
@@ -68,7 +87,7 @@ read_input (const char *input_file, inp_t * input_params,
 
   int n_output_species = 0;
   int n_initial_abundances =
-    get_nb_active_line_section (input_file, "abundances");
+   get_nb_active_line_section (input_file, "abundances");
   while (fgets (line, MAX_LINE, f) != NULL)
     {
       if (strncmp (line, "abundances", 10) == 0)
@@ -107,7 +126,6 @@ read_input (const char *input_file, inp_t * input_params,
   input_params->solver.rel_err = REL_ERR_DEFAULT;
   input_params->output.time_steps = TIME_STEPS_DEFAULT;
   input_params->output.trace_routes = TRACE_ROUTES_DEFAULT;
-  input_params->mpi_grain = MPI_GRAIN_DEFAULT;
 
   /* Loop over the lines, and look for keywords (between brackets) and
      parameters/values (separated by "="). */
@@ -181,10 +199,10 @@ read_input (const char *input_file, inp_t * input_params,
                   else
                     {
                       input_params->abundances.
-                        initial_abundances[i].species_idx =
-                        find_species (parameter, network);
+                       initial_abundances[i].species_idx =
+                       find_species (parameter, network);
                       input_params->abundances.
-                        initial_abundances[i].abundance = atof (value);
+                       initial_abundances[i].abundance = atof (value);
 
                       /* Compute the total grain density */
                       int g, gm, gp;
@@ -198,8 +216,8 @@ read_input (const char *input_file, inp_t * input_params,
                           || input_params->abundances.
                           initial_abundances[i].species_idx == gp)
                         input_params->phys.grain_abundance +=
-                          input_params->abundances.
-                          initial_abundances[i].abundance;
+                         input_params->abundances.
+                         initial_abundances[i].abundance;
                       i++;
                     }
                 }
@@ -265,7 +283,7 @@ read_input (const char *input_file, inp_t * input_params,
                                    output_specie);
                         }
                       input_params->output.output_species_idx[j] =
-                        species_idx;
+                       species_idx;
                       j++;
                     }
                 }
@@ -276,19 +294,8 @@ read_input (const char *input_file, inp_t * input_params,
               else
                 input_error (input_file, line_number);
             }
-          else if (strcmp (keyword, "mpi") == 0)
-            {
-              if (strcmp (parameter, "mpi_grain") == 0)
-              {
-                input_params->mpi_grain = atoi(value);
-              }
-              else
-                input_error (input_file, line_number);
-
-            }
 
           /* Unknown or unspecified keyword */
-
           else
             input_error (input_file, line_number - 1);  /* Unknown or unspecified keyword */
         }
@@ -304,7 +311,7 @@ read_input (const char *input_file, inp_t * input_params,
   fclose (f);
 
   /* Check that the source file name and the chemical file name were specified
-     in the input file. Also check that other parameters have acceptable 
+     in the input file. Also check that other parameters have acceptable
      values. */
 
   if (strcmp (input_params->files.chem_file, "") == 0)
@@ -337,11 +344,15 @@ read_input (const char *input_file, inp_t * input_params,
     }
 }
 
-/*
-   Display an error message and exit of an error is encountered while
-   reading the input file.
+/**
+ * @brief Display an error while reading input
+ *
+ * Display an error message and exit of an error is encountered while
+ * reading the input file.
+ *
+ * @param input_file file from wich the error is from
+ * @param line_number line number where the error occured
  */
-
 void
 input_error (const char *input_file, int line_number)
 {
@@ -350,10 +361,14 @@ input_error (const char *input_file, int line_number)
   exit (1);
 }
 
-/*
-   Read the file containing the source model.
+/**
+ * @brief Read the file containing the source model.
+ *
+ * @param source_file file to read source model from
+ * @param[out] source_mdl struct to fill using source_file
+ * @param input_params input params to use while reading source model
+ * @param verbose 0 means quiet, 1 means verbose
  */
-
 void
 read_source (const char *source_file, mdl_t * source_mdl,
              const inp_t * input_params, const int verbose)
@@ -401,7 +416,7 @@ read_source (const char *source_file, mdl_t * source_mdl,
               // Get the number of time steps, the number of cells*time_steps, check correctness
               int nts = get_nb_active_line_section (source_file, "times");
               int n_cells_times =
-                get_nb_active_line_section (source_file, "cells");
+               get_nb_active_line_section (source_file, "cells");
               if (n_cells_times % nts != 0)
                 {
                   fprintf (stderr,
@@ -430,15 +445,15 @@ read_source (const char *source_file, mdl_t * source_mdl,
               for (i = 0; i < input_params->output.time_steps; i++)
                 {
                   source_mdl->ts.time_steps[i] =
-                    pow (10.,
-                         log10 (input_params->solver.ti) +
-                         i * (log10 (input_params->solver.tf) -
-                              log10 (input_params->solver.ti)) /
-                         (input_params->output.time_steps - 1));
+                   pow (10.,
+                        log10 (input_params->solver.ti) +
+                        i * (log10 (input_params->solver.tf) -
+                             log10 (input_params->solver.ti)) /
+                        (input_params->output.time_steps - 1));
                 }
             }
         }
-      if (strncmp (line, "[cells]", 7) == 0)    //Time to read the cells 
+      if (strncmp (line, "[cells]", 7) == 0)    //Time to read the cells
         {
           //Set reading flag to read the dynamic cells
           mode = R_DYNAMIC;
@@ -519,8 +534,12 @@ read_source (const char *source_file, mdl_t * source_mdl,
   fclose (f);
 }
 
-/* 
-   Alloc the input structure.
+/**
+ * @brief Alloc the input structure.
+ *
+ * @param input_params input_params to allocate
+ * @param n_initial_abundances number of initial abundances
+ * @param n_output_abundances number of output abundances
  */
 void
 alloc_input (inp_t * input_params, int n_initial_abundances,
@@ -544,8 +563,10 @@ alloc_input (inp_t * input_params, int n_initial_abundances,
     }
 }
 
-/* 
-   Free the input structure.
+/**
+ * @brief Free the input structure.
+ *
+ * @param input_params input params struct to free
  */
 void
 free_input (inp_t * input_params)
@@ -554,8 +575,12 @@ free_input (inp_t * input_params)
   free (input_params->abundances.initial_abundances);
 }
 
-/*
-   Alloc the model structure
+/**
+ * @brief Allocate the model structure
+ *
+ * @param source_mdl source model struct to allocate
+ * @param n_cells number of cells
+ * @param n_time_steps number of time steps
  */
 void
 alloc_mdl (mdl_t * source_mdl, int n_cells, int n_time_steps)
@@ -572,15 +597,15 @@ alloc_mdl (mdl_t * source_mdl, int n_cells, int n_time_steps)
   /* We want the cells in source strcutres have the following layout in memory :
 
      [ cells[i] -> [  [ nh[0] , nh[1], .. , nh[n_time_steps-1] ] , [av[0], av[1], ..,] , [ tgas[0],.. ], [ tdust[0] ] ] , cells[i+1] -> ... ]
-     although cells[i] et cells[i+1] could be pointing at two very different place, we want it to be memory contiguous 
-                             
-                             
-     We use a memory alignement technique, so  all cells will be contiguous and in each cells, 
+     although cells[i] et cells[i+1] could be pointing at two very different place, we want it to be memory contiguous
+
+
+     We use a memory alignement technique, so  all cells will be contiguous and in each cells,
      nh[], av[], tgas[] and tdust[] will be contiguous
      First allocate a big data block wich will contain all data of all cells, ie all nh,av,tgas,tdust , for ech time steps, for each cells.
      Then allocate a array of struct of pointer wich will contain all pointer to the data.
      Finally point each pointer to the right block of data.
-   */
+     */
   double *data;
   if ((data = malloc (4 * n_cells * n_time_steps * sizeof (double))) == NULL)
     {
@@ -588,7 +613,7 @@ alloc_mdl (mdl_t * source_mdl, int n_cells, int n_time_steps)
                __FILE__, __LINE__);
       exit (1);
     }
-  if ((source_mdl->cell = malloc (sizeof (cell_t) * n_cells)) == NULL)
+  if ((source_mdl->cell = malloc (sizeof (cell_table_t) * n_cells)) == NULL)
     {
       fprintf (stderr, "astrochem: %s:%d: array allocation failed.\n",
                __FILE__, __LINE__);
@@ -604,8 +629,10 @@ alloc_mdl (mdl_t * source_mdl, int n_cells, int n_time_steps)
     }
 }
 
-/*
-   Fre the model structure
+/**
+ * @brief Free the model structure
+ *
+ * @param source_mdl source model struct to free
  */
 void
 free_mdl (mdl_t * source_mdl)
@@ -616,11 +643,16 @@ free_mdl (mdl_t * source_mdl)
   free (source_mdl->ts.time_steps);
 }
 
-/*
-   Get the number of non commented line in a section
-   in a file beggining by [section] and ending with 
-   [other_section] or eof.
-   */
+/**
+ * @brief Get the number of non commented line in a section
+ * Get the number of non commented line in a section
+ * in a file beggining by [section] and ending with
+ * [other_section] or eof.
+ *
+ * @param file file to get number of line from
+ * @param section name of section to get number of line from
+ * @return number of line
+ */
 int
 get_nb_active_line_section (const char *file, const char *section)
 {
@@ -667,9 +699,11 @@ get_nb_active_line_section (const char *file, const char *section)
   return line_number;
 }
 
-/*
-   Get the number of non-commented line in a file
-   */
+/**
+ * @brief Get the number of non-commented line in a file
+ * @param file fiel to get number of line from
+ * @return number of line
+ */
 int
 get_nb_active_line (const char *file)
 {
@@ -693,9 +727,12 @@ get_nb_active_line (const char *file)
   return line_number;
 }
 
-/*
-   Read only chem_file and network_file from a input.ini file
-   */
+/**
+ * @brief Read only chem_file and network_file from a input.ini file
+ * @param input_file fiel to read files name from
+ * @param[out] files struct containing name of files from input file
+ * @param verbose 0 means quiet, 1 means verbose
+ */
 void
 read_input_file_names (const char *input_file, files_t * files, int verbose)
 {

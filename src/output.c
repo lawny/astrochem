@@ -2,7 +2,7 @@
    output.c - Write the abundances and formation/destruction routes in
    output files.
 
-   Copyright (c) 2006-2013 Sebastien Maret
+   Copyright (c) 2006-2014 Sebastien Maret
 
    This file is part of Astrochem.
 
@@ -27,10 +27,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "astrochem.h"
+
+#include "libastrochem.h"
 
 #define MAX_CHAR_FILENAME 64
 
+/**
+ * @brief write the results in output files
+ * @param n_shells number of shells
+ * @param input_params input params
+ * @param source_mdl source model
+ * @param network network
+ * @param results results
+ * @param verbose quiet if 0, verbose if 1
+ */
 void
 output (int n_shells, const inp_t * input_params, const mdl_t * source_mdl,
         const net_t * network, const res_t * results, int verbose)

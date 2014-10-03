@@ -1,6 +1,6 @@
 #  Makefile.am - Automake file for Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
+#  Copyright (c) 2006-2014 Sebastien Maret
 # 
 #  This file is part of Astrochem.
 #
@@ -24,10 +24,10 @@ EXTRA_DIST = osu2008.osu osu2009.osu
 nobase_dist_pkgdata_DATA = osu2008.chm osu2009.chm
 
 osu2008.chm: osu2008.osu
-	PYTHONPATH=../lib:${PYTHONPATH} ${CHMCONVERT} -o $@ $?
+	PYTHONPATH=../python/libastrochemtools:${PYTHONPATH} ${CHMCONVERT} -o $@ $?
 
 osu2009.chm: osu2009.osu
-	PYTHONPATH=../lib:${PYTHONPATH} ${CHMCONVERT} -o $@ $?
+	PYTHONPATH=../python/libastrochemtools:${PYTHONPATH} ${CHMCONVERT} -o $@ $?
 
 CLEANFILES = osu2008.chm osu2009.chm
 

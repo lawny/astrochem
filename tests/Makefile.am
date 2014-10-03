@@ -1,6 +1,6 @@
 #  Makefile.am - Automake file for Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
+#  Copyright (c) 2006-2014 Sebastien Maret
 # 
 #  This file is part of Astrochem.
 #
@@ -17,50 +17,53 @@
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
-TESTS = input_test source_test source_dyn_test network_test rate_test solve_test
+AM_CFLAGS = -Wall
 
-check_PROGRAMS = input_test source_test source_dyn_test network_test rate_test solve_test
+TESTS = input_test source_test source_dyn_test network_test rate_test full_solve_test abundances_test solver_test python_lib_test python_tools_test
+
+check_PROGRAMS = input_test source_test source_dyn_test network_test rate_test full_solve_test abundances_test solver_test python_lib_test python_tools_test
 
 input_test_SOURCES = input_test.c
-
-input_test_LDADD = ../src/input.o ../src/network.o
+input_test_LDADD = $(top_builddir)/src/libastrochem.la
 
 source_test_SOURCES = source_test.c
-
-source_test_LDADD = ../src/input.o ../src/network.o
+source_test_LDADD = $(top_builddir)/src/libastrochem.la
 
 source_dyn_test_SOURCES = source_dyn_test.c
-
-source_dyn_test_LDADD = ../src/input.o ../src/network.o
+source_dyn_test_LDADD = $(top_builddir)/src/libastrochem.la
 
 network_test_SOURCES = network_test.c
-
-network_test_LDADD = ../src/input.o ../src/network.o
+network_test_LDADD = $(top_builddir)/src/libastrochem.la
 
 rate_test_SOURCES = rate_test.c
+rate_test_LDADD = $(top_builddir)/src/libastrochem.la
 
-rate_test_LDADD = ../src/rates.o
+full_solve_test_SOURCES = full_solve_test.c
+full_solve_test_LDADD = $(top_builddir)/src/libastrochem.la
 
-solve_test_SOURCES = solve_test.c
+abundances_test_SOURCES = abundances_test.c
+abundances_test_LDADD = $(top_builddir)/src/libastrochem.la
 
-solve_test_LDADD = ../src/input.o ../src/network.o ../src/solve.o ../src/rates.o
+solver_test_SOURCES = solver_test.c
+solver_test_LDADD = $(top_builddir)/src/libastrochem.la
 
-benchmark: benchmark-bin
-	./benchmark
+python_lib_test$(EXEEXT): python_lib_test.py
+	cp $? $@
+	chmod a+x $@
 
-benchmark-bin: benchmark.py
-	sed -e 's,\@PYTHON\@,${PYTHON},g' $? > benchmark
-	chmod a+x benchmark
+python_tools_test$(EXEEXT): python_tools_test.py
+	cp $? $@
+	chmod a+x $@
 
+benchmark: benchmark.py
+	cp $? $@
+	chmod a+x $@
+	./$@
 
-benchmark_mpi: benchmark_mpi-bin
-	./benchmark_mpi
+benchmark_mpi: benchmark_mpi.py
+	cp $? $@
+	chmod a+x $@
+	./$@
 
-benchmark_mpi-bin: benchmark_mpi.py
-	sed -e 's,\@PYTHON\@,${PYTHON},g' $? > benchmark_mpi
-	chmod a+x benchmark_mpi
-
-CLEANFILES = input.ini source.mdl source_dyn.mdl network.chm *.abun
-
-EXTRA_DIST = benchmark_mpi.py benchmark.py
+CLEANFILES = benchmark benchmark_mpi input.ini source.mdl source_dyn.mdl network.chm *.abun
 

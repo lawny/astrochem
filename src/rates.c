@@ -1,7 +1,7 @@
 /*
    rates.c - Compute the reaction rates.
 
-   Copyright (c) 2006-2013 Sebastien Maret
+   Copyright (c) 2006-2014 Sebastien Maret
 
    This file is part of Astrochem.
 
@@ -26,8 +26,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "astrochem.h"
+#include "libastrochem.h"
+#include "rates.h"
 
+/**
+ * @brief compute rate of reaction
+ * @param alpha reaction alpha
+ * @param beta reaction beta
+ * @param gamm reaction gamm
+ * @param reaction_type reaction type
+ * @param reaction_no reaction number ( unused )
+ * @param nh density
+ * @param av av
+ * @param tgas gas temperature
+ * @param tdust dust temperature
+ * @param chi chi
+ * @param cosmic cosmic
+ * @param grain_size grain size
+ * @param grain_abundance grain abundance
+ * @param ice_abundance ice abundance
+ * @return rate
+ */
 double
 rate (double alpha, double beta, double gamm, int reaction_type,
       int reaction_no __attribute__ ((unused)), double nh, double av,
@@ -44,7 +63,7 @@ rate (double alpha, double beta, double gamm, int reaction_type,
   switch (reaction_type)
     {
     case -1:
-      /* Gas-grain interaction (excluding depletion and desorption), 
+      /* Gas-grain interaction (excluding depletion and desorption),
          Electron-grain recombination. */
       k = alpha * pow (tgas / 300, beta) * GAS_DUST_NUMBER_RATIO;
       break;
@@ -55,7 +74,7 @@ rate (double alpha, double beta, double gamm, int reaction_type,
       break;
 
     case 1:
-      /* Cosmic-ray ionization (direct process). Cosmic-ray induced 
+      /* Cosmic-ray ionization (direct process). Cosmic-ray induced
          photoreactions (indirect process)   */
       k = alpha * cosmic;
       break;

@@ -33,7 +33,6 @@
 
 #include "astrochem.h"
 
-
 void usage (void);
 void version (void);
 
@@ -42,8 +41,8 @@ main (int argc, char *argv[])
 {
   int cell_index;
 #ifdef WITH_MPI
-
   int numprocs, rank, namelen;
+  int mpi_grain = MPI_GRAIN_DEFAULT;
   char processor_name[MPI_MAX_PROCESSOR_NAME];
 
   MPI_Init (&argc, &argv);
@@ -54,7 +53,7 @@ main (int argc, char *argv[])
   if (nb_worker < 1)
     {
       fprintf (stderr,
-               "astrochem: %s:%d: There must be at least one worker\n",
+               "astrochem: %s:%d: There must be at least one worker, use mpirun\n",
                __FILE__, __LINE__);
       exit (1);
     }
@@ -68,6 +67,7 @@ main (int argc, char *argv[])
       mdl_t source_mdl;
       net_t network;
       res_t results;
+
       int verbose = 1;
       char *input_file;
 
@@ -81,10 +81,13 @@ main (int argc, char *argv[])
         {"version", no_argument, NULL, 'V'},
         {"verbose", no_argument, NULL, 'v'},
         {"quiet", no_argument, NULL, 'q'},
+#ifdef WITH_MPI
+        {"mpi_grain", required_argument, 0, 'm' },
+#endif
         {0, 0, 0, 0}
       };
 
-      while ((opt = getopt_long (argc, argv, "hVvq", longopts, NULL)) != -1)
+      while ((opt = getopt_long (argc, argv, "hVvqm:", longopts, NULL)) != -1)
         {
           switch (opt)
             {
@@ -102,6 +105,11 @@ main (int argc, char *argv[])
             case 'q':
               verbose = 0;
               break;
+#ifdef WITH_MPI
+            case 'm':
+              mpi_grain = atoi( optarg );
+              break;
+#endif
             default:
               usage ();
               exit (1);
@@ -137,6 +145,19 @@ main (int argc, char *argv[])
       //Sending data
       int n_work;
       int cnt;
+        
+      // Checking mpi_grain
+      if( mpi_grain <= 0 || mpi_grain >  source_mdl.n_cells )
+        {
+          if( verbose == 1 )
+            {
+              fprintf (stdout,
+                       "astrochem: %s:%d: mpi_grain %i invalid, setting to %i\n",
+                       __FILE__, __LINE__, mpi_grain, source_mdl.n_cells / nb_worker );
+            }
+          mpi_grain = source_mdl.n_cells / nb_worker;
+        }
+
       for (cnt = 0; cnt < nb_worker; cnt++)
         {
           n_work = cnt + MPI_FIRST_WORKER;
@@ -163,10 +184,11 @@ main (int argc, char *argv[])
                     MPI_DOUBLE, n_work, tag, MPI_COMM_WORLD);
           MPI_Send (&source_mdl.mode, sizeof (SOURCE_MODE), MPI_BYTE, n_work,
                     tag, MPI_COMM_WORLD);
+          MPI_Send (&mpi_grain, 1, MPI_INT, n_work, tag, MPI_COMM_WORLD);
         }
 
       int current_cell = 0;
-      int idx_array[input_params.mpi_grain];
+      int idx_array[mpi_grain];
       char tmp_msg;
       int i, n_cell, stopped_worker = 0;
       //MPI Master Loop
@@ -196,7 +218,7 @@ main (int argc, char *argv[])
                             MPI_COMM_WORLD);
                   //Prepare cells
                   n_cell = 0;
-                  for (i = 0; i < input_params.mpi_grain; i++)
+                  for (i = 0; i < mpi_grain; i++)
                     {
                       if (current_cell == source_mdl.n_cells)
                         {
@@ -212,11 +234,11 @@ main (int argc, char *argv[])
                   if (verbose >= 1)
                     {
                       printf ("Sending %i to %i cell to worker %i\n",
-                              idx_array[0], idx_array[input_params.mpi_grain - 1],
+                              idx_array[0], idx_array[mpi_grain - 1],
                               status.MPI_SOURCE);
                     }
                   //Send cell idxs
-                  MPI_Send (idx_array, input_params.mpi_grain, MPI_INT,
+                  MPI_Send (idx_array, mpi_grain, MPI_INT,
                             status.MPI_SOURCE, tag, MPI_COMM_WORLD);
                   //Send cell data
                   MPI_Send (source_mdl.cell[idx_array[0]].nh,
@@ -230,11 +252,11 @@ main (int argc, char *argv[])
             {
               n_work = status.MPI_SOURCE;
               //Receive cell idxs
-              MPI_Recv (idx_array, input_params.mpi_grain, MPI_INT, n_work, MPI_ANY_TAG,
+              MPI_Recv (idx_array, mpi_grain, MPI_INT, n_work, MPI_ANY_TAG,
                         MPI_COMM_WORLD, &status);
               //Check cell idxs
               int n_cell = 0;
-              for (i = 0; i < input_params.mpi_grain; i++)
+              for (i = 0; i < mpi_grain; i++)
                 {
                   if (idx_array[i] != -1)
                     {
@@ -322,32 +344,37 @@ main (int argc, char *argv[])
       MPI_Recv (&mode, sizeof (SOURCE_MODE), MPI_BYTE, MPI_MASTER_RANK, tag,
                 MPI_COMM_WORLD, &status);
 
+      //mpi grain
+      MPI_Recv (&mpi_grain, 1, MPI_INT, MPI_MASTER_RANK, tag,
+                MPI_COMM_WORLD, &status);
+
+
       /*Allocate a standard memory aligned block of cells 
          See alloc_source comments for memory aligned allocation explanation */
       cell_block_t block;
       double *data;
-      if ((block.cell_idxs = malloc (input.mpi_grain * sizeof (int))) == NULL)
+      if ((block.cell_idxs = malloc (mpi_grain * sizeof (int))) == NULL)
         {
           fprintf (stderr, "astrochem: %s:%d: array allocation failed.\n",
                    __FILE__, __LINE__);
           exit (1);
         }
       if ((data =
-           malloc (4 * input.mpi_grain * ts.n_time_steps * sizeof (double))) ==
+           malloc (4 * mpi_grain * ts.n_time_steps * sizeof (double))) ==
           NULL)
         {
           fprintf (stderr, "astrochem: %s:%d: array allocation failed.\n",
                    __FILE__, __LINE__);
           exit (1);
         }
-      if ((block.cells = malloc (sizeof (cell_t) * input.mpi_grain)) == NULL)
+      if ((block.cells = malloc (sizeof (cell_t) * mpi_grain)) == NULL)
         {
           fprintf (stderr, "astrochem: %s:%d: array allocation failed.\n",
                    __FILE__, __LINE__);
           exit (1);
         }
       int i;
-      for (i = 0; i < input.mpi_grain; i++)
+      for (i = 0; i < mpi_grain; i++)
         {
           block.cells[i].nh = &(data[4 * i * ts.n_time_steps]);
           block.cells[i].av = &(data[(4 * i + 1) * ts.n_time_steps]);
@@ -356,7 +383,7 @@ main (int argc, char *argv[])
         }
 
       //Allocate standard results block
-      alloc_results (&results, ts.n_time_steps, input.mpi_grain, input.output.n_output_species);    //Dynamic solve incorrect alloc
+      alloc_results (&results, ts.n_time_steps, mpi_grain, input.output.n_output_species);    //Dynamic solve incorrect alloc
 
       int n_block = 0;
       while (1)                 //MPI Worker Loop
@@ -373,10 +400,10 @@ main (int argc, char *argv[])
               break;
             }
           //Still got work, receive cell indexes
-          MPI_Recv (block.cell_idxs, input.mpi_grain, MPI_INT, MPI_MASTER_RANK,
+          MPI_Recv (block.cell_idxs, mpi_grain, MPI_INT, MPI_MASTER_RANK,
                     MPI_ANY_TAG, MPI_COMM_WORLD, &status);
           int n_cell = 0;
-          for (i = 0; i < input.mpi_grain; i++)
+          for (i = 0; i < mpi_grain; i++)
             {
               if (block.cell_idxs[i] != -1)
                 {
@@ -396,7 +423,7 @@ main (int argc, char *argv[])
             {
               if (block.cell_idxs[cell_index] != -1)
                 {
-                  solve (cell_index, &input, mode, &block.cells[cell_index],
+                  full_solve (cell_index, &input, mode, &block.cells[cell_index],
                          &network, &ts, &results, 0);
                 }
             }
@@ -404,7 +431,7 @@ main (int argc, char *argv[])
           // Send Finished flag to master
           MPI_Send (&msg, 1, MPI_CHAR, MPI_MASTER_RANK, tag, MPI_COMM_WORLD);
           //Send cells indexes to master
-          MPI_Send (block.cell_idxs, input.mpi_grain, MPI_INT, MPI_MASTER_RANK,
+          MPI_Send (block.cell_idxs, mpi_grain, MPI_INT, MPI_MASTER_RANK,
                     tag, MPI_COMM_WORLD);
           //Send results to master
           MPI_Send (results.abundances,
@@ -417,7 +444,7 @@ main (int argc, char *argv[])
                     MPI_MASTER_RANK, tag, MPI_COMM_WORLD);
           n_block++;
         }
-      //Freee strucutres
+      //Free structures
       free_results (&results);
       free (block.cells[0].nh);
       free (block.cells);
@@ -438,7 +465,7 @@ main (int argc, char *argv[])
           if (verbose >= 1)
             fprintf (stdout, "Computing abundances in cell %d...\n",
                      cell_index);
-          solve (cell_index, &input_params, source_mdl.mode,
+            full_solve (cell_index, &input_params, source_mdl.mode,
                  &source_mdl.cell[cell_index], &network, &source_mdl.ts,
                  &results, verbose);
           if (verbose >= 1)
@@ -470,6 +497,9 @@ usage (void)
   fprintf (stdout, "   -V, --version      Print program version\n");
   fprintf (stdout, "   -v, --verbose      Verbose mode\n");
   fprintf (stdout, "   -q, --quiet        Suppress all messages\n");
+#ifdef WITH_MPI
+  fprintf (stdout, "   -m, --mpi_grain value    mpi grain to use\n");
+#endif
   fprintf (stdout, "\n");
   fprintf (stdout,
            "See the astrochem(1) manual page for more information.\n");

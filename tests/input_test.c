@@ -1,7 +1,7 @@
 /* 
    input_test.c - Test the read_input() function
    
-   Copyright (c) 2006-2013 Sebastien Maret
+   Copyright (c) 2006-2014 Sebastien Maret
    
    This file is part of Astrochem.
 
@@ -22,7 +22,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../src/astrochem.h"
+#include "../src/libastrochem.h"
 
 int
 main (void)
@@ -95,7 +95,6 @@ main (void)
   fprintf (f, "abundances = CO,C(+),C,e(-),OH,H3O(+),H,H2,HCO(+),CO(+),C4H,HCO(+),CH(+),CH\n");
   fprintf (f, "trace_routes = 1\n");
   fprintf (f, "[mpi]\n");
-  fprintf (f, "mpi_grain = 15\n");
 
   fclose (f);
 
@@ -133,7 +132,6 @@ main (void)
       (strcmp (network.species_names[input_params.abundances.initial_abundances[4].species_idx], "C(+)") == 0) &&
       (input_params.abundances.initial_abundances[4].abundance == 7.30e-5) &&
       (input_params.output.n_output_species == 14) &&
-      (input_params.mpi_grain == 15) &&
       (strcmp (network.species_names[input_params.output.output_species_idx[0]], "CO") == 0) &&
       (strcmp (network.species_names[input_params.output.output_species_idx[1]], "C(+)") == 0) &&
       (strcmp (network.species_names[input_params.output.output_species_idx[2]], "C") == 0) &&

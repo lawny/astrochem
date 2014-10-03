@@ -1,6 +1,6 @@
 #  Makefile.am - Automake file for Astrochem
 #
-#  Copyright (c) 2006-2013 Sebastien Maret
+#  Copyright (c) 2006-2014 Sebastien Maret
 # 
 #  This file is part of Astrochem.
 #
@@ -17,28 +17,4 @@
 #  You should have received a copy of the GNU General Public License
 #  along with Astrochem.  If not, see <http://www.gnu.org/licenses/>.
 
-SUBDIRS = examples
-
-man_MANS = astrochem.1 plabun.1 plroute.1 chmconvert.1
-
-EXTRA_DIST = $(man_MANS) astrochem.tex astrochem.bib fig1.pdf fig2.pdf
-
-if HAVE_PDFLATEX
-if HAVE_BIBTEX
-
-SUFFIXES = .pdf .tex
-
-pdf: astrochem.pdf
-
-astrochem.pdf: astrochem.tex astrochem.bib fig1.pdf fig2.pdf
-	$(PDFLATEX) astrochem.tex
-	$(BIBTEX) astrochem.aux
-	$(PDFLATEX) astrochem.tex
-	$(PDFLATEX) astrochem.tex
-
-CLEANFILES = astrochem.tex astrochem.aux astrochem.log astrochem.bbl	\
-	astrochem.blg astrochem.pdf astrochem.1 plabun.1 plroute.1	\
-	chmconvert.1
-
-endif
-endif
+SUBDIRS = latex man examples doxygen sphinx
