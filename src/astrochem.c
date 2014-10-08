@@ -25,7 +25,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <getopt.h>
+#ifdef WITH_MPI
 #include <mpi.h>
+#endif
 
 #ifdef HAVE_OPENMP
 #include <omp.h>
