@@ -148,6 +148,26 @@ AM_CONDITIONAL([HAVE_PYMOD_BREATHE], [test $HAVE_PYMOD_BREATHE = "yes"])
 LX_FIND_MPI()
 AM_CONDITIONAL([HAVE_MPI], [test $have_C_mpi = "yes"])
 
+#check for mpirun
+if test -z $MPIRUN; then
+    AC_PATH_PROGS( MPIRUN, [ mpirun mpirun-openmpi_mp ] )
+else
+    AC_MSG_CHECKING([provided mpirun path $MPIRUN is correct])
+    AS_IF($MPIRUN -V > /dev/null 2>&1, , MPIRUN="")
+    if test -z $MPIRUN; then
+        AC_MSG_RESULT([ no ])
+    else
+        AC_MSG_RESULT([ yes ])
+    fi
+fi
+
+HAVE_MPIRUN="yes"
+if test -z $MPIRUN; then
+HAVE_MPIRUN="no"
+AC_MSG_WARN([[Cannot find mpirun, which is required to run astrochem_mpi and associated benchmark ]])
+fi
+
+
 AC_CONFIG_FILES([Makefile
                  doc/Makefile
 		 doc/latex/astrochem.tex

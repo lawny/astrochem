@@ -70,7 +70,7 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPICC" ]]; then
              LX_QUERY_MPI_COMPILER(MPICC, [$MPICC], C)
          else
-             LX_QUERY_MPI_COMPILER(MPICC, [mpicc mpiicc mpixlc mpipgcc], C)
+             LX_QUERY_MPI_COMPILER(MPICC, [mpicc mpiicc mpixlc mpipgcc mpicc-openmpi-mp ], C)
          fi
      ],
      [C++], [
@@ -78,7 +78,7 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPICXX" ]]; then
              LX_QUERY_MPI_COMPILER(MPICXX, [$MPICXX], CXX)
          else
-             LX_QUERY_MPI_COMPILER(MPICXX, [mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC], CXX)
+             LX_QUERY_MPI_COMPILER(MPICXX, [mpicxx mpiCC mpic++ mpig++ mpiicpc mpipgCC mpixlC mpicxx-openmpi-mp], CXX)
          fi
      ],
      [F77], [
@@ -86,7 +86,7 @@ AC_DEFUN([LX_FIND_MPI],
          if [[ ! -z "$MPIF77" ]]; then
              LX_QUERY_MPI_COMPILER(MPIF77, [$MPIF77], F77)
          else
-             LX_QUERY_MPI_COMPILER(MPIF77, [mpif77 mpiifort mpixlf77 mpixlf77_r], F77)
+             LX_QUERY_MPI_COMPILER(MPIF77, [mpif77 mpiifort mpixlf77 mpixlf77_r mpif77-openmpi-mp], F77)
          fi
      ],
      [Fortran], [
