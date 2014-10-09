@@ -369,7 +369,7 @@ main (int argc, char *argv[])
                    __FILE__, __LINE__);
           exit (1);
         }
-      if ((block.cells = malloc (sizeof (cell_t) * mpi_grain)) == NULL)
+      if ((block.cells = malloc (sizeof (cell_table_t) * mpi_grain)) == NULL)
         {
           fprintf (stderr, "astrochem: %s:%d: array allocation failed.\n",
                    __FILE__, __LINE__);
