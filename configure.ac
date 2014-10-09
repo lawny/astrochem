@@ -150,7 +150,7 @@ AM_CONDITIONAL([HAVE_MPI], [test $have_C_mpi = "yes"])
 
 #check for mpirun
 if test -z $MPIRUN; then
-    AC_PATH_PROGS( MPIRUN, [ mpirun mpirun-openmpi_mp ] )
+    AC_PATH_PROGS( MPIRUN, [ mpirun mpirun-openmpi-mp ] )
 else
     AC_MSG_CHECKING([provided mpirun path $MPIRUN is correct])
     AS_IF($MPIRUN -V > /dev/null 2>&1, , MPIRUN="")
