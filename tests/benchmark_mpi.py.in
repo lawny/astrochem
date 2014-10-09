@@ -93,6 +93,7 @@ def main():
 
       	# Start time as a subprocess and parse the output
       	new_env = os.environ.copy();
+        new_env['MPIRUN'] = '@MPIRUN@'
         p = Popen('./test_astro_mpi.sh', stderr = PIPE,env=new_env)
         output = p.communicate()[1]
         real, user, sys = map(float, output.split()[1::2])
