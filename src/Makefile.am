@@ -32,7 +32,7 @@ bin_PROGRAMS = astrochem apiuser chmconvert
 if HAVE_MPI
 bin_PROGRAMS += astrochem_mpi
 astrochem_mpi_SOURCES = astrochem.c
-astrochem_mpi_CFLAGS = -DWITH_MPI ${MPI_CFLAGS}
+astrochem_mpi_CPPFLAGS = -DWITH_MPI ${MPI_CFLAGS}
 astrochem_mpi_LDFLAGS = $(MPI_CLDFLAGS)
 astrochem_mpi_LDADD = -lastrochem
 endif
