@@ -297,8 +297,8 @@ read_input (const char *input_file, inp_t * input_params,
                         }
                       if ( duplicated )
                         {
-                              output_specie = strtok ( NULL, delimiter);
-                              continue;
+                          output_specie = strtok ( NULL, delimiter);
+                          continue;
                         }
                       input_params->output.output_species_idx[j] = species_idx;
                       j++;
@@ -784,4 +784,33 @@ read_input_file_names (const char *input_file, files_t * files, int verbose)
         }
     }
   fclose (f);
+}
+/**
+ * @brief Get the number of non commented line in a file
+ *
+ * @param file file to get number of line from
+ * @return number of line
+ */
+
+int
+get_nb_active_line (const char *file)
+{
+  FILE *f;
+  char line[MAX_LINE];
+  int line_number = 0;
+  f = fopen (file, "r");
+  if (!f)
+    {
+      fprintf (stderr, "astrochem: error: can't open %s.\n", file);
+      exit (1);
+    }
+  while (fgets (line, MAX_LINE, f) != NULL)
+    {
+      if (line[0] != '#')
+        {
+          line_number++;
+        }
+    }
+  fclose (f);
+  return line_number;
 }
