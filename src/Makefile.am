@@ -73,12 +73,10 @@ CLEANFILES += plabun.py plroute.py
 endif
 
 install-exec-hook:
-	mv $(DESTDIR)$(bindir)/chmconvert $(DESTDIR)$(bindir)/chmconvert.tmp
-	sed -e 's/libastrochemtools/astrochem.libastrochemtools/g'  $(DESTDIR)$(bindir)/chmconvert.tmp >  $(DESTDIR)$(bindir)/chmconvert.tmp2
-	sed -e 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/chmconvert.tmp2 > $(DESTDIR)$(bindir)/chmconvert
+	sed -i.tmp 's/libastrochemtools/astrochem.libastrochemtools/g'  $(DESTDIR)$(bindir)/chmconvert
+	sed -i.tmp 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/chmconvert
 	chmod a+x $(DESTDIR)$(bindir)/chmconvert
 	rm -f $(DESTDIR)$(bindir)/chmconvert.tmp
-	rm -f $(DESTDIR)$(bindir)/chmconvert.tmp2
 if HAVE_PYMOD_BIGGLES
 	mv $(DESTDIR)$(bindir)/plabun $(DESTDIR)$(bindir)/plabun.tmp
 	sed -e 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/plabun.tmp > $(DESTDIR)$(bindir)/plabun
