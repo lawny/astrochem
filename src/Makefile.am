@@ -1,7 +1,7 @@
 #  Makefile.am - Automake file for Astrochem
 #
 #  Copyright (c) 2006-2014 Sebastien Maret
-# 
+#
 #  This file is part of Astrochem.
 #
 #  Astrochem is free software: you can redistribute it and/or modify
@@ -66,10 +66,11 @@ endif
 
 install-exec-hook:
 	mv $(DESTDIR)$(bindir)/chmconvert $(DESTDIR)$(bindir)/chmconvert.tmp
-	sed -i 's/libastrochemtools/astrochem.libastrochemtools/g'  $(DESTDIR)$(bindir)/chmconvert.tmp
-	sed -e 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/chmconvert.tmp > $(DESTDIR)$(bindir)/chmconvert
+	sed -e 's/libastrochemtools/astrochem.libastrochemtools/g'  $(DESTDIR)$(bindir)/chmconvert.tmp >  $(DESTDIR)$(bindir)/chmconvert.tmp2
+	sed -e 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/chmconvert.tmp2 > $(DESTDIR)$(bindir)/chmconvert
 	chmod a+x $(DESTDIR)$(bindir)/chmconvert
 	rm -f $(DESTDIR)$(bindir)/chmconvert.tmp
+	rm -f $(DESTDIR)$(bindir)/chmconvert.tmp2
 if HAVE_PYMOD_BIGGLES
 	mv $(DESTDIR)$(bindir)/plabun $(DESTDIR)$(bindir)/plabun.tmp
 	sed -e 's,$${prefix},${prefix},g' $(DESTDIR)$(bindir)/plabun.tmp > $(DESTDIR)$(bindir)/plabun
