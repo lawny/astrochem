@@ -198,6 +198,23 @@ read_input (const char *input_file, inp_t * input_params,
                     }
                   else
                     {
+                      int specie_idx = find_species (parameter, network);
+                      int k;
+                      bool duplicated = false;
+                      for( k = 0; k<i; k++ )
+                        {
+                          if(  input_params->abundances.initial_abundances[k].species_idx == specie_idx )
+                            {
+                              duplicated = true;
+                              fprintf (stderr,"astrochem: warning: duplicated initial abundances, keeping only the first"
+                                       "initial abundances of %s.\n", parameter);
+                              break;
+                            }
+                        }
+                      if( duplicated )
+                        {
+                          continue;
+                        }
                       input_params->abundances.
                        initial_abundances[i].species_idx =
                        find_species (parameter, network);
@@ -245,46 +262,54 @@ read_input (const char *input_file, inp_t * input_params,
                 {
                   const char delimiter[] = ",";
                   char *output_specie;
-
-                  /* Structure initialization */
-
-                  if (j >= input_params->output.n_output_species)
-                    {
-                      fprintf (stderr,
-                               "astrochem: error: the number of species in output exceeds %i.\n",
-                               input_params->output.n_output_species);
-                      exit (1);
-                    }
                   output_specie = strtok (value, delimiter);
-                  int species_idx = find_species (output_specie, network);
-                  if (species_idx < 0)
-                    {
-                      fprintf (stderr,
-                               "astrochem: warning: %s abundance requested, "
-                               "but is not in the network.\n", output_specie);
-                    }
-                  input_params->output.output_species_idx[j] = species_idx;
-                  j++;
-                  while ((output_specie = strtok (NULL, delimiter)) != NULL)
+                  while( output_specie != NULL )
                     {
                       if (j >= input_params->output.n_output_species)
                         {
                           fprintf (stderr,
-                                   "astrochem: error: the number of species in output exceeds %i.\n",
+                                   "astrochem: error: the number of species in output exceeds %i, incoherent input file.\n",
                                    input_params->output.n_output_species);
-                          exit (1);
+                          break;
                         }
                       int species_idx = find_species (output_specie, network);
                       if (species_idx < 0)
                         {
                           fprintf (stderr,
                                    "astrochem: warning: %s abundance requested, "
-                                   "but is not in the network.\n",
-                                   output_specie);
+                                   "but is not in the network.\n", output_specie);
+                          input_params->output.n_output_species--;
+                          output_specie = strtok ( NULL, delimiter);
+                          continue;
                         }
-                      input_params->output.output_species_idx[j] =
-                       species_idx;
+                      int k;
+                      bool duplicated = false;
+                      for( k=0; k<j; k++ )
+                        {
+                          if( input_params->output.output_species_idx[k] == species_idx )
+                            {
+                              fprintf (stderr,
+                                       "astrochem: error: duplicated output species in input file : %s.\n", output_specie );
+                              input_params->output.n_output_species--;
+                              duplicated = true;
+                              break;
+                            }
+                        }
+                      if ( duplicated )
+                        {
+                          output_specie = strtok ( NULL, delimiter);
+                          continue;
+                        }
+                      input_params->output.output_species_idx[j] = species_idx;
                       j++;
+                      output_specie = strtok ( NULL, delimiter);
+                    }
+                  if( j < input_params->output.n_output_species )
+                    {
+                      fprintf (stderr,
+                               "astrochem: error: the number of species in output inferior to %i, incoherent input file.\n",
+                               input_params->output.n_output_species);
+                      input_params->output.n_output_species = j-1;
                     }
                 }
               else if (strcmp (parameter, "trace_routes") == 0)
@@ -699,33 +724,7 @@ get_nb_active_line_section (const char *file, const char *section)
   return line_number;
 }
 
-/**
- * @brief Get the number of non-commented line in a file
- * @param file fiel to get number of line from
- * @return number of line
- */
-int
-get_nb_active_line (const char *file)
-{
-  FILE *f;
-  char line[MAX_LINE];
-  int line_number = 0;
-  f = fopen (file, "r");
-  if (!f)
-    {
-      fprintf (stderr, "astrochem: error: can't open %s.\n", file);
-      exit (1);
-    }
-  while (fgets (line, MAX_LINE, f) != NULL)
-    {
-      if (line[0] != '#')
-        {
-          line_number++;
-        }
-    }
-  fclose (f);
-  return line_number;
-}
+
 
 /**
  * @brief Read only chem_file and network_file from a input.ini file
@@ -784,4 +783,33 @@ read_input_file_names (const char *input_file, files_t * files, int verbose)
         }
     }
   fclose (f);
+}
+/**
+ * @brief Get the number of non commented line in a file
+ *
+ * @param file file to get number of line from
+ * @return number of line
+ */
+
+int
+get_nb_active_line (const char *file)
+{
+  FILE *f;
+  char line[MAX_LINE];
+  int line_number = 0;
+  f = fopen (file, "r");
+  if (!f)
+    {
+      fprintf (stderr, "astrochem: error: can't open %s.\n", file);
+      exit (1);
+    }
+  while (fgets (line, MAX_LINE, f) != NULL)
+    {
+      if (line[0] != '#')
+        {
+          line_number++;
+        }
+    }
+  fclose (f);
+  return line_number;
 }
