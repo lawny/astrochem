@@ -70,3 +70,4 @@ For more information on Astrochem and its development, please see the
 (https://travis-ci.org/smaret/astrochem)
 [![Documentation Status](https://readthedocs.org/projects/astrochem/badge/?version=latest)]
 (https://readthedocs.org/projects/astrochem/?badge=latest)
+[![Chat](https://img.shields.io/gitter/room/badges/shields.svg)](https://gitter.im/astrochem-code/astrochem)
